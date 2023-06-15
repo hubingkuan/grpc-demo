@@ -14,3 +14,13 @@ go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
  .代表生成的目录  hello.proto代表根据这个proto生成文件
 
 grpc中间件参考: [中间件](https://github.com/grpc-ecosystem/go-grpc-middleware)
+
+
+其他grpc插件:
+
+pb验证参数插件:https://github.com/bufbuild/protoc-gen-validate
+
+
+pb生成接口文档插件:https://github.com/pseudomuto/protoc-gen-doc
+
+protoc --validate_out="lang=go:./gen"  --doc_out=./doc --doc_opt=html,index.html --go_out=./gen/ proto/*.proto
