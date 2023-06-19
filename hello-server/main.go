@@ -1,4 +1,4 @@
-package main
+/*package main
 
 import (
 	"context"
@@ -67,4 +67,4 @@ func main() {
 	pb.RegisterSayHelloServer(grpcServer, &server{})
 	// 启动服务
 	grpcServer.Serve(listen)
-}
+}*/

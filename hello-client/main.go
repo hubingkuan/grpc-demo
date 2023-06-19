@@ -1,4 +1,4 @@
-package main
+/*package main
 
 import (
 	"context"
@@ -47,4 +47,4 @@ func main() {
 	// 执行rpc调用
 	response, err := client.SayHello(ctx, &pb.HelloRequest{RequestName: "maguahu"})
 	fmt.Println(response.GetResponseMsg())
-}
+}*/

@@ -1,11 +1,11 @@
 // 使用protobuf版本3
 syntax = "proto3";
 
-// 生成的go文件处于哪个目录哪个包下 .代表仅在当前目录下生成 users代表了生成的go文件的包名
-option go_package = ".;users";
+// 生成的go文件处于哪个目录哪个包下 ./代表仅在当前目录下生成 users代表了生成的go文件的包名
+option go_package = "grpc-demo/hello-client/proto;demoClient";
 
-// 生成go文件的包名
-package users;
+// proto文件中的包名
+package demoClient;
 
 service SayHello {
     // rpc 方法名(请求参数) returns (返回参数)
