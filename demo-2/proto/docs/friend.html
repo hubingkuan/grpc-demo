@@ -1,679 +1,830 @@
 <!DOCTYPE html>
 
 <html>
-<head>
+  <head>
     <title>Protocol Documentation</title>
     <meta charset="UTF-8">
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Ubuntu:400,700,400italic"/>
     <style>
-        body {
-            width: 60em;
-            margin: 1em auto;
-            color: #222;
-            font-family: "Ubuntu", sans-serif;
-            padding-bottom: 4em;
-        }
+      body {
+        width: 60em;
+        margin: 1em auto;
+        color: #222;
+        font-family: "Ubuntu", sans-serif;
+        padding-bottom: 4em;
+      }
 
-        h1 {
-            font-weight: normal;
-            border-bottom: 1px solid #aaa;
-            padding-bottom: 0.5ex;
-        }
+      h1 {
+        font-weight: normal;
+        border-bottom: 1px solid #aaa;
+        padding-bottom: 0.5ex;
+      }
 
-        h2 {
-            border-bottom: 1px solid #aaa;
-            padding-bottom: 0.5ex;
-            margin: 1.5em 0;
-        }
+      h2 {
+        border-bottom: 1px solid #aaa;
+        padding-bottom: 0.5ex;
+        margin: 1.5em 0;
+      }
 
-        h3 {
-            font-weight: normal;
-            border-bottom: 1px solid #aaa;
-            padding-bottom: 0.5ex;
-        }
+      h3 {
+        font-weight: normal;
+        border-bottom: 1px solid #aaa;
+        padding-bottom: 0.5ex;
+      }
 
-        a {
-            text-decoration: none;
-            color: #567e25;
-        }
+      a {
+        text-decoration: none;
+        color: #567e25;
+      }
 
-        table {
-            width: 100%;
-            font-size: 80%;
-            border-collapse: collapse;
-        }
+      table {
+        width: 100%;
+        font-size: 80%;
+        border-collapse: collapse;
+      }
 
-        thead {
-            font-weight: 700;
-            background-color: #dcdcdc;
-        }
+      thead {
+        font-weight: 700;
+        background-color: #dcdcdc;
+      }
 
-        tbody tr:nth-child(even) {
-            background-color: #fbfbfb;
-        }
+      tbody tr:nth-child(even) {
+        background-color: #fbfbfb;
+      }
 
-        td {
-            border: 1px solid #ccc;
-            padding: 0.5ex 2ex;
-        }
+      td {
+        border: 1px solid #ccc;
+        padding: 0.5ex 2ex;
+      }
 
-        td p {
-            text-indent: 1em;
-            margin: 0;
-        }
+      td p {
+        text-indent: 1em;
+        margin: 0;
+      }
 
-        td p:nth-child(1) {
-            text-indent: 0;
-        }
-
-
-        .field-table td:nth-child(1) {
-            width: 10em;
-        }
-
-        .field-table td:nth-child(2) {
-            width: 10em;
-        }
-
-        .field-table td:nth-child(3) {
-            width: 6em;
-        }
-
-        .field-table td:nth-child(4) {
-            width: auto;
-        }
+      td p:nth-child(1) {
+        text-indent: 0;
+      }
 
 
-        .extension-table td:nth-child(1) {
-            width: 10em;
-        }
+      .field-table td:nth-child(1) {
+        width: 10em;
+      }
 
-        .extension-table td:nth-child(2) {
-            width: 10em;
-        }
+      .field-table td:nth-child(2) {
+        width: 10em;
+      }
 
-        .extension-table td:nth-child(3) {
-            width: 10em;
-        }
+      .field-table td:nth-child(3) {
+        width: 6em;
+      }
 
-        .extension-table td:nth-child(4) {
-            width: 5em;
-        }
-
-        .extension-table td:nth-child(5) {
-            width: auto;
-        }
+      .field-table td:nth-child(4) {
+        width: auto;
+      }
 
 
-        .enum-table td:nth-child(1) {
-            width: 10em;
-        }
+      .extension-table td:nth-child(1) {
+        width: 10em;
+      }
 
-        .enum-table td:nth-child(2) {
-            width: 10em;
-        }
+      .extension-table td:nth-child(2) {
+        width: 10em;
+      }
 
-        .enum-table td:nth-child(3) {
-            width: auto;
-        }
+      .extension-table td:nth-child(3) {
+        width: 10em;
+      }
 
+      .extension-table td:nth-child(4) {
+        width: 5em;
+      }
 
-        .scalar-value-types-table tr {
-            height: 3em;
-        }
-
-
-        #toc-container ul {
-            list-style-type: none;
-            padding-left: 1em;
-            line-height: 180%;
-            margin: 0;
-        }
-
-        #toc > li > a {
-            font-weight: bold;
-        }
+      .extension-table td:nth-child(5) {
+        width: auto;
+      }
 
 
-        .file-heading {
-            width: 100%;
-            display: table;
-            border-bottom: 1px solid #aaa;
-            margin: 4em 0 1.5em 0;
-        }
+      .enum-table td:nth-child(1) {
+        width: 10em;
+      }
 
-        .file-heading h2 {
-            border: none;
-            display: table-cell;
-        }
+      .enum-table td:nth-child(2) {
+        width: 10em;
+      }
 
-        .file-heading a {
-            text-align: right;
-            display: table-cell;
-        }
+      .enum-table td:nth-child(3) {
+        width: auto;
+      }
 
 
-        .badge {
-            width: 1.6em;
-            height: 1.6em;
-            display: inline-block;
+      .scalar-value-types-table tr {
+        height: 3em;
+      }
 
-            line-height: 1.6em;
-            text-align: center;
-            font-weight: bold;
-            font-size: 60%;
 
-            color: #89ba48;
-            background-color: #dff0c8;
+      #toc-container ul {
+        list-style-type: none;
+        padding-left: 1em;
+        line-height: 180%;
+        margin: 0;
+      }
 
-            margin: 0.5ex 1em 0.5ex -1em;
-            border: 1px solid #fbfbfb;
-            border-radius: 1ex;
-        }
+      #toc > li > a {
+        font-weight: bold;
+      }
+
+
+      .file-heading {
+        width: 100%;
+        display: table;
+        border-bottom: 1px solid #aaa;
+        margin: 4em 0 1.5em 0;
+      }
+
+      .file-heading h2 {
+        border: none;
+        display: table-cell;
+      }
+
+      .file-heading a {
+        text-align: right;
+        display: table-cell;
+      }
+
+
+      .badge {
+        width: 1.6em;
+        height: 1.6em;
+        display: inline-block;
+
+        line-height: 1.6em;
+        text-align: center;
+        font-weight: bold;
+        font-size: 60%;
+
+        color: #89ba48;
+        background-color: #dff0c8;
+
+        margin: 0.5ex 1em 0.5ex -1em;
+        border: 1px solid #fbfbfb;
+        border-radius: 1ex;
+      }
     </style>
 
 
     <link rel="stylesheet" type="text/css" href="stylesheet.css"/>
-</head>
+  </head>
 
-<body>
+  <body>
 
-<h1 id="title">Protocol Documentation</h1>
+  <h1 id="title">Protocol Documentation</h1>
 
-<h2>Table of Contents</h2>
+  <h2>Table of Contents</h2>
 
-<div id="toc-container">
+  <div id="toc-container">
     <ul id="toc">
 
 
-        <li>
-            <a href="#friend%2ffriend.proto">friend/friend.proto</a>
-            <ul>
+      <li>
+        <a href="#friend%2ffriend.proto">friend/friend.proto</a>
+        <ul>
 
-                <li>
-                    <a href="#friend.FriendBaseInfo"><span class="badge">M</span>FriendBaseInfo</a>
+          <li>
+            <a href="#friend.FriendBaseInfo"><span class="badge">M</span>FriendBaseInfo</a>
+          </li>
+
+          <li>
+            <a href="#friend.RadarSearchPlayerInfo"><span class="badge">M</span>RadarSearchPlayerInfo</a>
+          </li>
+
+
+          <li>
+            <a href="#friend.AddFriendType"><span class="badge">E</span>AddFriendType</a>
                 </li>
 
-                <li>
-                    <a href="#friend.RadarSearchPlayerInfo"><span class="badge">M</span>RadarSearchPlayerInfo</a>
-                </li>
+          <li>
+            <a href="#friend.DegreeMethod"><span class="badge">E</span>DegreeMethod</a>
+          </li>
 
 
-                <li>
-                    <a href="#friend.DegreeMethod"><span class="badge">E</span>DegreeMethod</a>
-                </li>
+          <li>
+            <a href="#friend.friend"><span class="badge">S</span>friend</a>
+          </li>
 
-                <li>
-                    <a href="#friend.addFriendType"><span class="badge">E</span>addFriendType</a>
-                </li>
+        </ul>
+      </li>
 
-
-                <li>
-                    <a href="#friend.friend"><span class="badge">S</span>friend</a>
-                </li>
-
-            </ul>
-        </li>
-
-        <li><a href="#scalar-value-types">Scalar Value Types</a></li>
+      <li><a href="#scalar-value-types">Scalar Value Types</a></li>
     </ul>
-</div>
+  </div>
 
 
-<div class="file-heading">
+  <div class="file-heading">
     <h2 id="friend/friend.proto">friend/friend.proto</h2><a href="#title">Top</a>
-</div>
-<p></p>
+  </div>
+  <p></p>
 
 
-<h3 id="friend.FriendBaseInfo">FriendBaseInfo</h3>
-<p>好友基本信息</p>
+  <h3 id="friend.FriendBaseInfo">FriendBaseInfo</h3>
+  <p>好友基本信息</p>
 
 
-<table class="field-table">
+  <table class="field-table">
     <thead>
     <tr>
-        <td>Field</td>
-        <td>Type</td>
-        <td>Label</td>
-        <td>Description</td>
+      <td>Field</td>
+      <td>Type</td>
+      <td>Label</td>
+      <td>Description</td>
     </tr>
     </thead>
     <tbody>
 
     <tr>
-        <td>playerId</td>
-        <td><a href="#uint64">uint64</a></td>
-        <td></td>
-        <td><p>玩家ID </p></td>
+      <td>playerId</td>
+      <td><a href="#uint64">uint64</a></td>
+      <td></td>
+      <td><p>玩家ID </p></td>
     </tr>
 
     <tr>
-        <td>name</td>
-        <td><a href="#string">string</a></td>
-        <td></td>
-        <td><p>昵称 </p></td>
+      <td>name</td>
+      <td><a href="#string">string</a></td>
+      <td></td>
+      <td><p>昵称 </p></td>
     </tr>
 
     <tr>
-        <td>isOnline</td>
-        <td><a href="#bool">bool</a></td>
-        <td></td>
-        <td><p>是否在线 </p></td>
+      <td>isOnline</td>
+      <td><a href="#bool">bool</a></td>
+      <td></td>
+      <td><p>是否在线 </p></td>
     </tr>
 
     <tr>
-        <td>frame</td>
-        <td><a href="#uint32">uint32</a></td>
-        <td></td>
-        <td><p>相框 </p></td>
+      <td>frame</td>
+      <td><a href="#string">string</a></td>
+      <td></td>
+      <td><p>相框 前缀必须是foo </p></td>
     </tr>
 
     <tr>
-        <td>head</td>
-        <td><a href="#uint32">uint32</a></td>
-        <td></td>
-        <td><p>头像 </p></td>
+      <td>head</td>
+      <td><a href="#uint32">uint32</a></td>
+      <td></td>
+      <td><p>头像 必须在指定值1,2,3,4,5内 </p></td>
     </tr>
 
     <tr>
-        <td>model</td>
-        <td><a href="#uint32">uint32</a></td>
-        <td></td>
-        <td><p>模型 </p></td>
+      <td>model</td>
+      <td><a href="#uint32">uint32</a></td>
+      <td></td>
+      <td><p>模型 </p></td>
     </tr>
 
     <tr>
-        <td>tag</td>
-        <td><a href="#string">string</a></td>
-        <td></td>
-        <td><p>备注 </p></td>
+      <td>tag</td>
+      <td><a href="#string">string</a></td>
+      <td></td>
+      <td><p>备注 最大长度1 最小长度10 </p></td>
     </tr>
 
     <tr>
-        <td>offline</td>
-        <td><a href="#int64">int64</a></td>
-        <td></td>
-        <td><p>离线时间 </p></td>
+      <td>offline</td>
+      <td><a href="#int64">int64</a></td>
+      <td></td>
+      <td><p>离线时间 </p></td>
     </tr>
 
     <tr>
-        <td>friendDegree</td>
-        <td><a href="#int32">int32</a></td>
-        <td></td>
-        <td><p>好友度 </p></td>
+      <td>friendDegree</td>
+      <td><a href="#int32">int32</a></td>
+      <td></td>
+      <td><p>好友度 </p></td>
     </tr>
 
     <tr>
-        <td>addType</td>
-        <td><a href="#friend.addFriendType">addFriendType</a></td>
-        <td></td>
-        <td><p>加好友的途径 </p></td>
+      <td>addType</td>
+      <td><a href="#friend.AddFriendType">AddFriendType</a></td>
+      <td></td>
+      <td><p>加好友的途径 字段必须是指定的枚举值 </p></td>
     </tr>
 
     <tr>
-        <td>baseLevel</td>
-        <td><a href="#int32">int32</a></td>
-        <td></td>
-        <td><p>角色等级 </p></td>
+      <td>baseLevel</td>
+      <td><a href="#int32">int32</a></td>
+      <td></td>
+      <td><p>角色等级 </p></td>
+    </tr>
+
+    <tr>
+      <td>email</td>
+      <td><a href="#string">string</a></td>
+      <td></td>
+      <td><p></p></td>
+    </tr>
+
+    <tr>
+      <td>x</td>
+      <td><a href="#bool">bool</a></td>
+      <td></td>
+      <td><p>必须是指定的值 true </p></td>
+    </tr>
+
+    <tr>
+      <td>xx</td>
+      <td><a href="#float">float</a></td>
+      <td>repeated</td>
+      <td><p>重复的值必须是唯一的 </p></td>
     </tr>
 
     </tbody>
-</table>
+  </table>
 
 
-<h3 id="friend.RadarSearchPlayerInfo">RadarSearchPlayerInfo</h3>
-<p></p>
-
-
-<table class="field-table">
+  <h4>Validated Fields</h4>
+  <table>
     <thead>
     <tr>
-        <td>Field</td>
-        <td>Type</td>
-        <td>Label</td>
-        <td>Description</td>
+      <td>Field</td>
+      <td>Validations</td>
     </tr>
     </thead>
     <tbody>
 
     <tr>
-        <td>distance</td>
-        <td><a href="#float">float</a></td>
-        <td></td>
-        <td><p></p></td>
+      <td>playerId</td>
+      <td>
+        <ul>
+
+          <li>uint64.gt: 999</li>
+
+        </ul>
+      </td>
     </tr>
 
     <tr>
-        <td>playerId</td>
-        <td><a href="#uint64">uint64</a></td>
-        <td></td>
-        <td><p></p></td>
+      <td>name</td>
+      <td>
+        <ul>
+
+          <li>string.max_bytes: 256</li>
+
+          <li>string.pattern: ^[^[0-9]A-Za-z]&#43;( [^[0-9]A-Za-z]&#43;)*$</li>
+
+        </ul>
+      </td>
     </tr>
 
     <tr>
-        <td>bubbleFrame</td>
-        <td><a href="#uint32">uint32</a></td>
-        <td></td>
-        <td><p>气泡框 </p></td>
+      <td>frame</td>
+      <td>
+        <ul>
+
+          <li>string.prefix: foo</li>
+
+        </ul>
+      </td>
     </tr>
 
     <tr>
-        <td>head</td>
-        <td><a href="#uint32">uint32</a></td>
-        <td></td>
-        <td><p>头像 </p></td>
+      <td>head</td>
+      <td>
+        <ul>
+
+          <li>uint32.in: [1 2 3 4 5]</li>
+
+        </ul>
+      </td>
     </tr>
 
     <tr>
-        <td>headFrame</td>
-        <td><a href="#uint32">uint32</a></td>
-        <td></td>
-        <td><p>头像框 </p></td>
+      <td>model</td>
+      <td>
+        <ul>
+
+          <li>uint32.lte: 90</li>
+
+          <li>uint32.gte: 50</li>
+
+        </ul>
+      </td>
     </tr>
 
     <tr>
-        <td>nickName</td>
-        <td><a href="#string">string</a></td>
-        <td></td>
-        <td><p>昵称 </p></td>
+      <td>tag</td>
+      <td>
+        <ul>
+
+          <li>string.min_len: 1</li>
+
+          <li>string.max_len: 10</li>
+
+        </ul>
+      </td>
+    </tr>
+
+    <tr>
+      <td>addType</td>
+      <td>
+        <ul>
+
+          <li>enum.const: 1</li>
+
+        </ul>
+      </td>
+    </tr>
+
+    <tr>
+      <td>email</td>
+      <td>
+        <ul>
+
+          <li>string.email: true</li>
+
+        </ul>
+      </td>
+    </tr>
+
+    <tr>
+      <td>x</td>
+      <td>
+        <ul>
+
+          <li>bool.const: true</li>
+
+        </ul>
+      </td>
+    </tr>
+
+    <tr>
+      <td>xx</td>
+      <td>
+        <ul>
+
+          <li>repeated.unique: true</li>
+
+        </ul>
+      </td>
     </tr>
 
     </tbody>
-</table>
+  </table>
 
 
-<h3 id="friend.DegreeMethod">DegreeMethod</h3>
-<p></p>
-<table class="enum-table">
+  <h3 id="friend.RadarSearchPlayerInfo">RadarSearchPlayerInfo</h3>
+  <p></p>
+
+
+  <table class="field-table">
     <thead>
     <tr>
-        <td>Name</td>
-        <td>Number</td>
-        <td>Description</td>
+      <td>Field</td>
+      <td>Type</td>
+      <td>Label</td>
+      <td>Description</td>
     </tr>
     </thead>
     <tbody>
 
     <tr>
-        <td>Other</td>
-        <td>0</td>
-        <td><p></p></td>
+      <td>distance</td>
+      <td><a href="#float">float</a></td>
+      <td></td>
+      <td><p></p></td>
     </tr>
 
     <tr>
-        <td>PrivateChat</td>
-        <td>1</td>
-        <td><p></p></td>
+      <td>playerId</td>
+      <td><a href="#uint64">uint64</a></td>
+      <td></td>
+      <td><p></p></td>
     </tr>
 
     <tr>
-        <td>GiftGiveMethod</td>
-        <td>2</td>
-        <td><p></p></td>
+      <td>bubbleFrame</td>
+      <td><a href="#uint32">uint32</a></td>
+      <td></td>
+      <td><p>气泡框 </p></td>
+    </tr>
+
+    <tr>
+      <td>head</td>
+      <td><a href="#uint32">uint32</a></td>
+      <td></td>
+      <td><p>头像 </p></td>
+    </tr>
+
+    <tr>
+      <td>headFrame</td>
+      <td><a href="#uint32">uint32</a></td>
+      <td></td>
+      <td><p>头像框 </p></td>
+    </tr>
+
+    <tr>
+      <td>nickName</td>
+      <td><a href="#string">string</a></td>
+      <td></td>
+      <td><p>昵称 </p></td>
     </tr>
 
     </tbody>
-</table>
+  </table>
 
-<h3 id="friend.addFriendType">addFriendType</h3>
-<p>加好友的途径</p>
-<table class="enum-table">
+
+  <h3 id="friend.AddFriendType">AddFriendType</h3>
+  <p>加好友的途径</p>
+  <table class="enum-table">
     <thead>
     <tr>
-        <td>Name</td>
-        <td>Number</td>
-        <td>Description</td>
+      <td>Name</td>
+      <td>Number</td>
+      <td>Description</td>
     </tr>
     </thead>
     <tbody>
 
     <tr>
-        <td>NormalAdd</td>
-        <td>0</td>
-        <td><p>普通加好友</p></td>
+      <td>NormalAdd</td>
+      <td>0</td>
+      <td><p>普通加好友</p></td>
     </tr>
 
     <tr>
-        <td>LetterAdd</td>
-        <td>1</td>
-        <td><p>留言板加好友</p></td>
+      <td>LetterAdd</td>
+      <td>1</td>
+      <td><p>留言板加好友</p></td>
     </tr>
 
     </tbody>
-</table>
+  </table>
 
-
-<h3 id="friend.friend">friend</h3>
-<p>这里的service名字是生成的go文件中的 client和server的前缀名称 FriendClient FriendServer</p>
-<table class="enum-table">
+  <h3 id="friend.DegreeMethod">DegreeMethod</h3>
+  <p></p>
+  <table class="enum-table">
     <thead>
     <tr>
-        <td>Method Name</td>
-        <td>Request Type</td>
-        <td>Response Type</td>
-        <td>Description</td>
+      <td>Name</td>
+      <td>Number</td>
+      <td>Description</td>
     </tr>
     </thead>
     <tbody>
 
     <tr>
-        <td>GetFriendInfo</td>
-        <td><a href="#friend.FriendBaseInfo">FriendBaseInfo</a></td>
-        <td><a href="#friend.RadarSearchPlayerInfo">RadarSearchPlayerInfo</a></td>
-        <td><p></p></td>
+      <td>Other</td>
+      <td>0</td>
+      <td><p></p></td>
+    </tr>
+
+    <tr>
+      <td>PrivateChat</td>
+      <td>1</td>
+      <td><p></p></td>
+    </tr>
+
+    <tr>
+      <td>GiftGiveMethod</td>
+      <td>2</td>
+      <td><p></p></td>
     </tr>
 
     </tbody>
-</table>
+  </table>
 
 
-<h2 id="scalar-value-types">Scalar Value Types</h2>
-<table class="scalar-value-types-table">
+  <h3 id="friend.friend">friend</h3>
+  <p>这里的service名字是生成的go文件中的 client和server的前缀名称 FriendClient FriendServer</p>
+  <table class="enum-table">
     <thead>
     <tr>
-        <td>.proto Type</td>
-        <td>Notes</td>
-        <td>C++</td>
-        <td>Java</td>
-        <td>Python</td>
-        <td>Go</td>
-        <td>C#</td>
-        <td>PHP</td>
-        <td>Ruby</td>
+      <td>Method Name</td>
+      <td>Request Type</td>
+      <td>Response Type</td>
+      <td>Description</td>
+    </tr>
+    </thead>
+    <tbody>
+
+    <tr>
+      <td>GetFriendInfo</td>
+      <td><a href="#friend.FriendBaseInfo">FriendBaseInfo</a></td>
+      <td><a href="#friend.RadarSearchPlayerInfo">RadarSearchPlayerInfo</a></td>
+      <td><p></p></td>
+    </tr>
+
+    </tbody>
+  </table>
+
+
+  <h2 id="scalar-value-types">Scalar Value Types</h2>
+  <table class="scalar-value-types-table">
+    <thead>
+    <tr>
+      <td>.proto Type</td>
+      <td>Notes</td>
+      <td>C++</td>
+      <td>Java</td>
+      <td>Python</td>
+      <td>Go</td>
+      <td>C#</td>
+      <td>PHP</td>
+      <td>Ruby</td>
     </tr>
     </thead>
     <tbody>
 
     <tr id="double">
-        <td>double</td>
-        <td></td>
-        <td>double</td>
-        <td>double</td>
-        <td>float</td>
-        <td>float64</td>
-        <td>double</td>
-        <td>float</td>
-        <td>Float</td>
+      <td>double</td>
+      <td></td>
+      <td>double</td>
+      <td>double</td>
+      <td>float</td>
+      <td>float64</td>
+      <td>double</td>
+      <td>float</td>
+      <td>Float</td>
     </tr>
 
     <tr id="float">
-        <td>float</td>
-        <td></td>
-        <td>float</td>
-        <td>float</td>
-        <td>float</td>
-        <td>float32</td>
-        <td>float</td>
-        <td>float</td>
-        <td>Float</td>
+      <td>float</td>
+      <td></td>
+      <td>float</td>
+      <td>float</td>
+      <td>float</td>
+      <td>float32</td>
+      <td>float</td>
+      <td>float</td>
+      <td>Float</td>
     </tr>
 
     <tr id="int32">
-        <td>int32</td>
-        <td>Uses variable-length encoding. Inefficient for encoding negative numbers – if your field is likely to have
-            negative values, use sint32 instead.
-        </td>
-        <td>int32</td>
-        <td>int</td>
-        <td>int</td>
-        <td>int32</td>
-        <td>int</td>
-        <td>integer</td>
-        <td>Bignum or Fixnum (as required)</td>
+      <td>int32</td>
+      <td>Uses variable-length encoding. Inefficient for encoding negative numbers – if your field is likely to have
+        negative values, use sint32 instead.
+      </td>
+      <td>int32</td>
+      <td>int</td>
+      <td>int</td>
+      <td>int32</td>
+      <td>int</td>
+      <td>integer</td>
+      <td>Bignum or Fixnum (as required)</td>
     </tr>
 
     <tr id="int64">
-        <td>int64</td>
-        <td>Uses variable-length encoding. Inefficient for encoding negative numbers – if your field is likely to have
-            negative values, use sint64 instead.
-        </td>
-        <td>int64</td>
-        <td>long</td>
-        <td>int/long</td>
-        <td>int64</td>
-        <td>long</td>
-        <td>integer/string</td>
-        <td>Bignum</td>
+      <td>int64</td>
+      <td>Uses variable-length encoding. Inefficient for encoding negative numbers – if your field is likely to have
+        negative values, use sint64 instead.
+      </td>
+      <td>int64</td>
+      <td>long</td>
+      <td>int/long</td>
+      <td>int64</td>
+      <td>long</td>
+      <td>integer/string</td>
+      <td>Bignum</td>
     </tr>
 
     <tr id="uint32">
-        <td>uint32</td>
-        <td>Uses variable-length encoding.</td>
-        <td>uint32</td>
-        <td>int</td>
-        <td>int/long</td>
-        <td>uint32</td>
-        <td>uint</td>
-        <td>integer</td>
-        <td>Bignum or Fixnum (as required)</td>
+      <td>uint32</td>
+      <td>Uses variable-length encoding.</td>
+      <td>uint32</td>
+      <td>int</td>
+      <td>int/long</td>
+      <td>uint32</td>
+      <td>uint</td>
+      <td>integer</td>
+      <td>Bignum or Fixnum (as required)</td>
     </tr>
 
     <tr id="uint64">
-        <td>uint64</td>
-        <td>Uses variable-length encoding.</td>
-        <td>uint64</td>
-        <td>long</td>
-        <td>int/long</td>
-        <td>uint64</td>
-        <td>ulong</td>
-        <td>integer/string</td>
-        <td>Bignum or Fixnum (as required)</td>
+      <td>uint64</td>
+      <td>Uses variable-length encoding.</td>
+      <td>uint64</td>
+      <td>long</td>
+      <td>int/long</td>
+      <td>uint64</td>
+      <td>ulong</td>
+      <td>integer/string</td>
+      <td>Bignum or Fixnum (as required)</td>
     </tr>
 
     <tr id="sint32">
-        <td>sint32</td>
-        <td>Uses variable-length encoding. Signed int value. These more efficiently encode negative numbers than regular
-            int32s.
-        </td>
-        <td>int32</td>
-        <td>int</td>
-        <td>int</td>
-        <td>int32</td>
-        <td>int</td>
-        <td>integer</td>
-        <td>Bignum or Fixnum (as required)</td>
+      <td>sint32</td>
+      <td>Uses variable-length encoding. Signed int value. These more efficiently encode negative numbers than regular
+        int32s.
+      </td>
+      <td>int32</td>
+      <td>int</td>
+      <td>int</td>
+      <td>int32</td>
+      <td>int</td>
+      <td>integer</td>
+      <td>Bignum or Fixnum (as required)</td>
     </tr>
 
     <tr id="sint64">
-        <td>sint64</td>
-        <td>Uses variable-length encoding. Signed int value. These more efficiently encode negative numbers than regular
-            int64s.
-        </td>
-        <td>int64</td>
-        <td>long</td>
-        <td>int/long</td>
-        <td>int64</td>
-        <td>long</td>
-        <td>integer/string</td>
-        <td>Bignum</td>
+      <td>sint64</td>
+      <td>Uses variable-length encoding. Signed int value. These more efficiently encode negative numbers than regular
+        int64s.
+      </td>
+      <td>int64</td>
+      <td>long</td>
+      <td>int/long</td>
+      <td>int64</td>
+      <td>long</td>
+      <td>integer/string</td>
+      <td>Bignum</td>
     </tr>
 
     <tr id="fixed32">
-        <td>fixed32</td>
-        <td>Always four bytes. More efficient than uint32 if values are often greater than 2^28.</td>
-        <td>uint32</td>
-        <td>int</td>
-        <td>int</td>
-        <td>uint32</td>
-        <td>uint</td>
-        <td>integer</td>
-        <td>Bignum or Fixnum (as required)</td>
+      <td>fixed32</td>
+      <td>Always four bytes. More efficient than uint32 if values are often greater than 2^28.</td>
+      <td>uint32</td>
+      <td>int</td>
+      <td>int</td>
+      <td>uint32</td>
+      <td>uint</td>
+      <td>integer</td>
+      <td>Bignum or Fixnum (as required)</td>
     </tr>
 
     <tr id="fixed64">
-        <td>fixed64</td>
-        <td>Always eight bytes. More efficient than uint64 if values are often greater than 2^56.</td>
-        <td>uint64</td>
-        <td>long</td>
-        <td>int/long</td>
-        <td>uint64</td>
-        <td>ulong</td>
-        <td>integer/string</td>
-        <td>Bignum</td>
+      <td>fixed64</td>
+      <td>Always eight bytes. More efficient than uint64 if values are often greater than 2^56.</td>
+      <td>uint64</td>
+      <td>long</td>
+      <td>int/long</td>
+      <td>uint64</td>
+      <td>ulong</td>
+      <td>integer/string</td>
+      <td>Bignum</td>
     </tr>
 
     <tr id="sfixed32">
-        <td>sfixed32</td>
-        <td>Always four bytes.</td>
-        <td>int32</td>
-        <td>int</td>
-        <td>int</td>
-        <td>int32</td>
-        <td>int</td>
-        <td>integer</td>
-        <td>Bignum or Fixnum (as required)</td>
+      <td>sfixed32</td>
+      <td>Always four bytes.</td>
+      <td>int32</td>
+      <td>int</td>
+      <td>int</td>
+      <td>int32</td>
+      <td>int</td>
+      <td>integer</td>
+      <td>Bignum or Fixnum (as required)</td>
     </tr>
 
     <tr id="sfixed64">
-        <td>sfixed64</td>
-        <td>Always eight bytes.</td>
-        <td>int64</td>
-        <td>long</td>
-        <td>int/long</td>
-        <td>int64</td>
-        <td>long</td>
-        <td>integer/string</td>
-        <td>Bignum</td>
+      <td>sfixed64</td>
+      <td>Always eight bytes.</td>
+      <td>int64</td>
+      <td>long</td>
+      <td>int/long</td>
+      <td>int64</td>
+      <td>long</td>
+      <td>integer/string</td>
+      <td>Bignum</td>
     </tr>
 
     <tr id="bool">
-        <td>bool</td>
-        <td></td>
-        <td>bool</td>
-        <td>boolean</td>
-        <td>boolean</td>
-        <td>bool</td>
-        <td>bool</td>
-        <td>boolean</td>
-        <td>TrueClass/FalseClass</td>
+      <td>bool</td>
+      <td></td>
+      <td>bool</td>
+      <td>boolean</td>
+      <td>boolean</td>
+      <td>bool</td>
+      <td>bool</td>
+      <td>boolean</td>
+      <td>TrueClass/FalseClass</td>
     </tr>
 
     <tr id="string">
-        <td>string</td>
-        <td>A string must always contain UTF-8 encoded or 7-bit ASCII text.</td>
-        <td>string</td>
-        <td>String</td>
-        <td>str/unicode</td>
-        <td>string</td>
-        <td>string</td>
-        <td>string</td>
-        <td>String (UTF-8)</td>
+      <td>string</td>
+      <td>A string must always contain UTF-8 encoded or 7-bit ASCII text.</td>
+      <td>string</td>
+      <td>String</td>
+      <td>str/unicode</td>
+      <td>string</td>
+      <td>string</td>
+      <td>string</td>
+      <td>String (UTF-8)</td>
     </tr>
 
     <tr id="bytes">
-        <td>bytes</td>
-        <td>May contain any arbitrary sequence of bytes.</td>
-        <td>string</td>
-        <td>ByteString</td>
-        <td>str</td>
-        <td>[]byte</td>
-        <td>ByteString</td>
-        <td>string</td>
-        <td>String (ASCII-8BIT)</td>
+      <td>bytes</td>
+      <td>May contain any arbitrary sequence of bytes.</td>
+      <td>string</td>
+      <td>ByteString</td>
+      <td>str</td>
+      <td>[]byte</td>
+      <td>ByteString</td>
+      <td>string</td>
+      <td>String (ASCII-8BIT)</td>
     </tr>
 
     </tbody>
-</table>
-</body>
+  </table>
+  </body>
 </html>

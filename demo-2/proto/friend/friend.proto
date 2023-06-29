@@ -5,8 +5,10 @@ package  friend;
 // ;后面是生产的go文件包名
 option go_package = "grpc-demo/demo-2/proto/friend/;friend";
 
+import "validate/validate.proto";
+
 //加好友的途径
-enum addFriendType
+enum AddFriendType
 {
   NormalAdd = 0; //普通加好友
   LetterAdd = 1; //留言板加好友
@@ -20,17 +22,23 @@ enum DegreeMethod {
 
 // 好友基本信息
 message FriendBaseInfo {
-  uint64 playerId = 1;  // 玩家ID
-  string name = 2;  // 昵称
+  uint64 playerId = 1 [(validate.rules).uint64.gt = 999];  // 玩家ID
+  string name = 2 [(validate.rules).string = {
+    pattern:   "^[^[0-9]A-Za-z]+( [^[0-9]A-Za-z]+)*$",
+    max_bytes: 256,
+  }];  // 昵称
   bool isOnline = 3;  // 是否在线
-  uint32 frame = 4;  // 相框
-  uint32 head = 5;  // 头像
-  uint32 model = 6;  // 模型
-  string tag = 7;  // 备注
+  string frame = 4 [(validate.rules).string.prefix = "foo"];  // 相框 前缀必须是foo
+  uint32 head = 5 [(validate.rules).uint32 = {in:[1, 2, 3, 4, 5]}];  // 头像 必须在指定值1,2,3,4,5内
+  uint32 model = 6 [(validate.rules).uint32 = {gte: 50,  lte: 90}];  // 模型
+  string tag = 7 [(validate.rules).string = {min_len:1,max_len:10}] ;// 备注 最大长度1 最小长度10
   int64 offline = 8;  // 离线时间
   int32 friendDegree = 9;  // 好友度
-  addFriendType addType = 10; // 加好友的途径
+  AddFriendType addType = 10 [(validate.rules).enum.const = 1]; // 加好友的途径 字段必须是指定的枚举值
   int32 baseLevel = 11; // 角色等级
+  string email = 12 [(validate.rules).string.email = true];
+  bool x = 13 [(validate.rules).bool.const = true];  // 必须是指定的值 true
+  repeated float xx = 14 [(validate.rules).repeated.unique = true]; // 重复的值必须是唯一的
 }
 
 message RadarSearchPlayerInfo {
