@@ -1,32 +1,24 @@
-@echo  protocol generate
-@echo current dir: %~dp0
-set cDir= %~dp0
-set SRC_DIR=%cDir%
-set DST_DIR="%cDir%gen\"
-@echo "SRC_DIR:"%SRC_DIR%
-@echo "DST_DIR:"%DST_DIR%
+@echo off
+setlocal enabledelayedexpansion
 
-rem protoc -I=$SRC_DIR --go_out=$DST_DIR $SRC_DIR/addressbook.proto
+set "doc_dir=./docs"
 
-rem protoc --doc_out=./doc --doc_opt=html,index.html proto/*.proto
-goto r
-protoc \
-      -I . \
-      -I ${GOPATH}/src \
-      -I ${GOPATH}/src/github.com/envoyproxy/protoc-gen-validate \
-      --go_out=":../generated" \
-      --validate_out="lang=go:../generated" \
-      example.proto
-:r
+IF NOT EXIST "%doc_dir%" (
+  mkdir "%doc_dir%"
+  @echo "%doc_dir% created"
+)
 
-rem --go_opt=paths=import
 
-::protoc -I=./proto/ --go_out=./gen/ proto/*.proto
+set "all_proto=friend/friend.proto login/login.proto"
 
-mkdir doc
+for %%i in (%all_proto%) do (
+    set "protoPath=%%i"
+    for %%j in ("!protoPath!") do set "protoName=%%~nj"
+    protoc --doc_out=!doc_dir! --doc_opt=html,!protoName!.html ^
+           --validate_out=lang=go,paths=source_relative:./ ^
+           --go_out=plugins=grpc,module=grpc-demo/demo-2/proto:./ !protoPath!
+    @echo protoc --go_out=plugins=grpc:. "%%i"
+)
 
-protoc  --proto_path=./proto --validate_out="lang=go:./" --go_out=./  --doc_out=./doc --doc_opt=html,index.html proto/*.proto
-
-move github.com/phuhao00/greatestworks-proto/gen  ./protos/pb
-rd /s/q github.com
+@echo proto file generate success...
 pause
