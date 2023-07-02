@@ -8,8 +8,12 @@ IF NOT EXIST "%doc_dir%" (
   @echo "%doc_dir% created"
 )
 
+set "config_file=proto_dir.cfg"
 
-set "all_proto=friend/friend.proto login/login.proto"
+for /f "tokens=*" %%a in ('type "%config_file%" ^| findstr /V /C:")" ^| findstr /V /C:"all_proto=("') do (
+   set "all_proto=!all_proto!%%a "
+)
+
 
 for %%i in (%all_proto%) do (
     set "protoPath=%%i"

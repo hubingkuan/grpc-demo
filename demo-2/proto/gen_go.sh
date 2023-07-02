@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 source ./proto_dir.cfg
 
 doc_dir="./docs"
