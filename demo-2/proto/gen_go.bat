@@ -5,7 +5,7 @@ set "doc_dir=./docs"
 
 IF NOT EXIST "%doc_dir%" (
   mkdir "%doc_dir%"
-  @echo "%doc_dir% created"
+  @echo "mkdir %doc_dir%"
 )
 
 set "config_file=proto_dir.cfg"
@@ -24,5 +24,5 @@ for %%i in (%all_proto%) do (
     @echo protoc --go_out=plugins=grpc:. "%%i"
 )
 
-@echo proto file generate success...
+@echo proto file generate success
 pause
