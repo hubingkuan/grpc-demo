@@ -51,21 +51,24 @@ md := metadata.New(map[string]string{"key1": "val1", "key2": "val2"})
 // 注意：所有键将自动转换为小写， 因此，“key1”和“kEy1”将是相同的键，它们的值将合并到同一个列表中
 ``` 
 
-2. 客户端发起metadata
+2. 客户端发送metadata
 
 ```go
-    // 建立连接
+// 建立连接
 client := pb.NewSayHelloClient(conn)
 // 这里创建metadata给服务端(所有的key都会转换成小写)
 md := metadata.Pairs("appid", "maguahu", "appkey", "12345")
 ctx := metadata.NewOutgoingContext(context.Background(), md)
+// 也可以使用ctx := metadata.AppendToOutgoingContext(ctx, "k1", "v1", "k1", "v2", "k2", "v3")
 // 执行rpc调用 传入ctx(包含metadata)
 response, err := client.SayHello(ctx, &pb.HelloRequest{RequestName: "maguahu"})
+// 注意: 一元调用和流式调用 客户端都是使用ctx发送metadata
 ```
 
 3. 客户端接受metadata
 
 ```go
+// 一元调用
 var header, trailer metadata.MD
 r, err := client.SomeRPC(
 ctx,
@@ -73,13 +76,20 @@ someRequest,
 grpc.Header(&header), // 接收的header放在这里   本质是opts ...grpc.CallOption  
 grpc.Trailer(&trailer), // 接收的trailer放这里
 )
-
 fmt.Println(header.Get("key")) // 打印从服务端这边得到的md中定义的key
+
+// 流式调用
+stream, err := client.SomeStreamingRPC(ctx)
+// retrieve header
+header, err := stream.Header()
+// retrieve trailer
+trailer := stream.Trailer()
 ```
 
 4. 服务端发送metadata
 
 ```go
+// 一元调用:
 func (s *server) SomeRPC(ctx context.Context, in *pb.someRequest) (*pb.someResponse, error) {
 // 创建并设置 header
 header := metadata.Pairs("header-key", "val")
@@ -88,15 +98,30 @@ grpc.SendHeader(ctx, header)
 trailer := metadata.Pairs("trailer-key", "val")
 grpc.SetTrailer(ctx, trailer)
 }
+
+// 流式调用:
+func (s *server) SomeStreamingRPC(stream pb.Service_SomeStreamingRPCServer) error {
+// create and send header
+header := metadata.Pairs("header-key", "val")
+stream.SendHeader(header)
+// create and set trailer
+trailer := metadata.Pairs("trailer-key", "val")
+stream.SetTrailer(trailer)
+}
+
 ```
 
 5. 服务端接受metadata
 
 ```go
+// 一元调用
 md, ok := metadata.FromIncomingContext(ctx)
+
+// 流式
+md, ok := metadata.FromIncomingContext(stream.Context())
 ```
 
-6. 自身grpc获取当前的元数据
+6. 服务端grpc包装自身数据(拦截器常用)
 
 ```go
 metadata.NewIncomingContext(ctx, md)
@@ -110,6 +135,12 @@ send, _ := metadata.FromOutgoingContext(ctx)
 newMD := metadata.Pairs("k3", "v3")
 ctx = metadata.NewOutgoingContext(ctx, metadata.Join(send, newMD))
 ```
+
+# 项目目录
+
+1. demo-1: 最简单的grpc服务 server中的proto引用client中的proto的message
+2. demo-2: 拦截器、metadata 客户端 服务端互传数据、proto生成脚本(validate、doc、grpc)
+3. demo-3: 流式 grpc示例 流式拦截器
 
 详情可参考:[metadata](https://github.com/grpc/grpc-go/blob/master/Documentation/grpc-metadata.md#unary-call)
 
