@@ -1,4 +1,4 @@
-package client
+package main
 
 import "google.golang.org/grpc/resolver"
 

@@ -1,4 +1,4 @@
-package client
+package main
 
 import "google.golang.org/grpc/resolver"
 
@@ -17,6 +17,7 @@ func (b ChihuoBuilder) Build(target resolver.Target, cc resolver.ClientConn, opt
 	return r, nil
 }
 
+// 返回自定义协议名称
 func (c ChihuoBuilder) Scheme() string {
 	return "chihuo"
 }
