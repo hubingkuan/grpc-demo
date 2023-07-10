@@ -6,6 +6,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
+	"grpc-demo/demo-2/middleware/timeout"
 	"grpc-demo/demo-2/proto/hello"
 	"log"
 	"time"
@@ -31,6 +32,8 @@ func main() {
 	var opts []grpc.DialOption
 	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	opts = append(opts, grpc.WithPerRPCCredentials(new(ClientTokenAuth)))
+	// 添加客户端拦截器
+	opts = append(opts, grpc.WithUnaryInterceptor(timeout.UnaryClientInterceptor(2*time.Second)))
 
 	conn, _ := grpc.Dial("localhost:8081", opts...)
 	defer conn.Close()
@@ -43,7 +46,7 @@ func main() {
 	// 定义接收header和trailer
 	var header, trailer metadata.MD
 	res, err := client.SayHello(ctx, &hello.Person{
-		// 这里故意传递一个不符合规范的值
+		// 如果传递一个不符合规范的值 比如id:998的话就不会通过服务端的validate
 		Id:    1000,
 		Email: "fanqiechaodan@fanqiechaodan.com",
 		Name:  "番茄炒蛋",
@@ -55,8 +58,9 @@ func main() {
 
 	if err != nil {
 		log.Println(err.Error())
+	} else {
+		fmt.Println("resp:", res)
 	}
-	fmt.Println(res.Id)
 
 	if t, ok := header["timestamp"]; ok {
 		fmt.Printf("timestamp from header:\n")
