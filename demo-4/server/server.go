@@ -8,6 +8,9 @@ import (
 	"grpc-demo/demo-4/proto"
 	"log"
 	"net"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 type Server struct {
@@ -28,11 +31,31 @@ func main() {
 	var port int
 	flag.IntVar(&port, "port", 8001, "port")
 	flag.Parse()
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+	addr := fmt.Sprintf("localhost:%d", port)
+
+	// 关闭信号处理
+	ch := make(chan os.Signal, 1)
+	signal.Notify(ch, syscall.SIGTERM, syscall.SIGINT, syscall.SIGKILL, syscall.SIGHUP, syscall.SIGQUIT)
+	go func() {
+		s := <-ch
+		etcdUnRegister(addr)
+		if i, ok := s.(syscall.Signal); ok {
+			os.Exit(int(i))
+		} else {
+			os.Exit(0)
+		}
+	}()
+
+	err := etcdRegister(addr)
 
 	if err != nil {
-		log.Fatalf("启动grpc server失败")
-		return
+		panic(err)
+
+	}
+	lis, err := net.Listen("tcp", addr)
+
+	if err != nil {
+		panic(err)
 	}
 
 	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(UnaryInterceptor()))
@@ -41,7 +64,7 @@ func main() {
 
 	log.Printf("service start port %d\n", port)
 	if err := grpcServer.Serve(lis); err != nil {
-		log.Fatalf("启动grpc server失败")
+		panic(err)
 	}
 }
 
