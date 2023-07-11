@@ -5,6 +5,7 @@ package login;
 option go_package = "grpc-demo/demo-2/proto/login;login";
 
 message LoginData{
+  // @inject_tag: json:"result" form:"result" uri:"result"
   uint32 Result = 1;
   uint64 UserID = 2;
   string Token = 3;
