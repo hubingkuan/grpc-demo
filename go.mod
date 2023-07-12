@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/envoyproxy/protoc-gen-validate v0.10.0
 	github.com/go-zookeeper/zk v1.0.3
+	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.29.1
 	go.etcd.io/etcd/client/v3 v3.5.9
 	google.golang.org/grpc v1.55.0
