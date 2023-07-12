@@ -2,6 +2,8 @@ source ./proto_dir.cfg
 
 doc_dir="./docs"
 
+suffix=".pb.go"
+
 if [ ! -d "$doc_dir" ]; then
   mkdir "$doc_dir"
   echo "mkdir $doc_dir"
@@ -15,5 +17,9 @@ for ((i = 0; i < ${#all_proto[*]}; i++)); do
           --validate_out="lang=go,paths=source_relative:./" \
           --go_out=plugins=grpc,module=grpc-demo/demo-2/proto:./   $protoPath
   echo "protoc --go_out=plugins=grpc:." $protoPath
+
+  v=$protoName/$protoName$suffix
+  echo "v:" $v
+  protoc-go-inject-tag -input=$v
 done
 echo "proto file generate success"

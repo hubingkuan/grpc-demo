@@ -142,7 +142,8 @@ type LoginData struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Result            uint32               `protobuf:"varint,1,opt,name=Result,proto3" json:"Result,omitempty"`
+	// @inject_tag: json:"result" form:"result" uri:"result"
+	Result            uint32               `protobuf:"varint,1,opt,name=Result,proto3" json:"result" form:"result" uri:"result"`
 	UserID            uint64               `protobuf:"varint,2,opt,name=UserID,proto3" json:"UserID,omitempty"`
 	Token             string               `protobuf:"bytes,3,opt,name=Token,proto3" json:"Token,omitempty"`
 	SessionID         string               `protobuf:"bytes,4,opt,name=SessionID,proto3" json:"SessionID,omitempty"`

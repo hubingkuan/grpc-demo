@@ -10,6 +10,8 @@ IF NOT EXIST "%doc_dir%" (
 
 set "config_file=proto_dir.cfg"
 
+set suffix=.pb.go
+
 for /f "tokens=*" %%a in ('type "%config_file%" ^| findstr /V /C:")" ^| findstr /V /C:"all_proto=("') do (
    set "all_proto=!all_proto!%%a "
 )
@@ -22,6 +24,9 @@ for %%i in (%all_proto%) do (
            --validate_out=lang=go,paths=source_relative:./ ^
            --go_out=plugins=grpc,module=grpc-demo/demo-2/proto:./ !protoPath!
     @echo protoc --go_out=plugins=grpc:. "%%i"
+
+    set v=!protoName!/!protoName!%suffix%
+    protoc-go-inject-tag -input=!v!
 )
 
 @echo proto file generate success
