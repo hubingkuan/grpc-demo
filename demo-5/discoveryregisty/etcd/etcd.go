@@ -15,14 +15,15 @@ import (
 const Default_TTL = 10
 
 type EtcdRegister struct {
-	cli         *clientv3.Client
-	schema      string
-	key         string
+	cli      *clientv3.Client
+	userName string
+	password string
+	schema   string
+	key      string
+
 	closeCh     chan struct{}
 	keepAliveCh <-chan *clientv3.LeaseKeepAliveResponse
 	etcdAddr    []string
-	userName    string
-	password    string
 
 	lock    sync.Locker
 	options []grpc.DialOption
@@ -44,6 +45,7 @@ func (s *EtcdRegister) Build(target resolver.Target, cc resolver.ClientConn, opt
 	serviceName := strings.TrimLeft(target.URL.Path, "/")
 	s.resolvers[serviceName] = r
 	fmt.Printf("build resolver finished: %+v,key: %s\n", target, serviceName)
+	// go s.watch(GetPrefix(s.schema, serviceName),)
 	return r, nil
 }
 
