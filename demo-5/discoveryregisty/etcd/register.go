@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func (r *EtcdClient) Register(serviceName, host string, port int, opts ...grpc.DialOption) error {
+func (r *EtcdRegister) Register(serviceName, host string, port int, opts ...grpc.DialOption) error {
 	ctx := context.Background()
 	args := fmt.Sprintf("RegisterEtcd args: schema:%s,serviceName:%s,host:%s,port:%d", r.schema, serviceName, host, port)
 	fmt.Println("RegisterEtcd args: ", args)
@@ -47,6 +47,7 @@ func (r *EtcdClient) Register(serviceName, host string, port int, opts ...grpc.D
 			select {
 			// 收到注销通知后 取消授权租约
 			case <-r.closeCh:
+				fmt.Println("unregister")
 				if err := r.UnRegister(); err != nil {
 					fmt.Println("unregister failed error", err)
 				}
@@ -83,13 +84,13 @@ func (r *EtcdClient) Register(serviceName, host string, port int, opts ...grpc.D
 	return err
 }
 
-func (r *EtcdClient) UnRegister() error {
+func (r *EtcdRegister) UnRegister() error {
 	r.closeCh <- struct{}{}
 	_, err := r.cli.Delete(context.Background(), r.key)
 	return err
 }
 
-func (r *EtcdClient) CreateRpcRootNodes(serviceNames []string) error {
-	//TODO implement me
+func (r *EtcdRegister) CreateRpcRootNodes(serviceNames []string) error {
+	// TODO implement me
 	panic("implement me")
 }

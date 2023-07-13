@@ -9,17 +9,20 @@ import (
 	"grpc-demo/demo-5/discoveryregisty"
 	"strings"
 	"sync"
+	"time"
 )
 
 const Default_TTL = 10
 
-type EtcdClient struct {
+type EtcdRegister struct {
 	cli         *clientv3.Client
 	schema      string
 	key         string
 	closeCh     chan struct{}
 	keepAliveCh <-chan *clientv3.LeaseKeepAliveResponse
 	etcdAddr    []string
+	userName    string
+	password    string
 
 	lock    sync.Locker
 	options []grpc.DialOption
@@ -29,8 +32,8 @@ type EtcdClient struct {
 	balancerName string
 }
 
-func (s *EtcdClient) Build(target resolver.Target, cc resolver.ClientConn, opts resolver.BuildOptions) (resolver.Resolver, error) {
-	fmt.Printf("build resolver: %+v, cc: %+v\n", target, cc.UpdateState)
+func (s *EtcdRegister) Build(target resolver.Target, cc resolver.ClientConn, opts resolver.BuildOptions) (resolver.Resolver, error) {
+	fmt.Printf("build resolver: %+v\n", target)
 	r := &discoveryregisty.Resolver{}
 	r.SetTarget(target)
 	r.SetCc(cc)
@@ -40,28 +43,61 @@ func (s *EtcdClient) Build(target resolver.Target, cc resolver.ClientConn, opts 
 	defer s.lock.Unlock()
 	serviceName := strings.TrimLeft(target.URL.Path, "/")
 	s.resolvers[serviceName] = r
-	fmt.Printf("build resolver finished: %+v, cc: %+v, key: %s\n", target, cc.UpdateState, serviceName)
+	fmt.Printf("build resolver finished: %+v,key: %s\n", target, serviceName)
 	return r, nil
 }
 
-func (r *EtcdClient) Scheme() string {
+func (r *EtcdRegister) Scheme() string {
 	return r.schema
 }
 
-type EtcdOption func(*EtcdClient)
+func NewClient(etcdAddr []string, schema string, opts ...EtcdOption) (*EtcdRegister, error) {
+	register := &EtcdRegister{
+		schema:     schema,
+		etcdAddr:   etcdAddr,
+		lock:       &sync.Mutex{},
+		resolvers:  make(map[string]*discoveryregisty.Resolver),
+		localConns: make(map[string][]resolver.Address),
+	}
+	for _, opt := range opts {
+		opt(register)
+	}
+	client, err := clientv3.New(clientv3.Config{
+		Endpoints:   register.etcdAddr,
+		DialTimeout: time.Duration(Default_TTL) * time.Second,
+		Username:    register.userName,
+		Password:    register.password,
+	})
+	if err != nil {
+		panic(err)
+	}
+	register.cli = client
+	return register, err
+}
+
+type EtcdOption func(*EtcdRegister)
 
 func WithRoundRobin() EtcdOption {
-	return func(client *EtcdClient) {
+	return func(client *EtcdRegister) {
 		client.balancerName = roundrobin.Name
+	}
+}
+
+func WithUserNameAndPassword(userName, password string) EtcdOption {
+	return func(client *EtcdRegister) {
+		client.userName = userName
+		client.password = password
+	}
+}
+
+func WithOptions(opts ...grpc.DialOption) EtcdOption {
+	return func(client *EtcdRegister) {
+		client.options = opts
 	}
 }
 
 func GetPrefix(schema, serviceName string) string {
 	return fmt.Sprintf("%s:///%s/", schema, serviceName)
-}
-
-func (r *EtcdClient) AddOption(opts ...grpc.DialOption) {
-	r.options = append(r.options, opts...)
 }
 
 func exists(addrList []resolver.Address, addr string) bool {
@@ -83,6 +119,10 @@ func remove(s []resolver.Address, addr string) ([]resolver.Address, bool) {
 	return nil, false
 }
 
-func (r *EtcdClient) GetClientLocalConns() map[string][]resolver.Address {
+func (r *EtcdRegister) AddOption(opts ...grpc.DialOption) {
+	r.options = append(r.options, opts...)
+}
+
+func (r *EtcdRegister) GetClientLocalConns() map[string][]resolver.Address {
 	return r.localConns
 }

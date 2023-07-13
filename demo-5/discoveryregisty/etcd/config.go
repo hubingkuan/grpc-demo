@@ -5,18 +5,7 @@ import (
 	"errors"
 )
 
-var Config config
-
-type config struct {
-	Etcd struct {
-		EtcdSchema string   `yaml:"etcdSchema"`
-		EtcdAddr   []string `yaml:"etcdAddr"`
-		UserName   string   `yaml:"userName"`
-		Password   string   `yaml:"password"`
-	}
-}
-
-func (r *EtcdClient) RegisterConf2Registry(key string, conf []byte) error {
+func (r *EtcdRegister) RegisterConf2Registry(key string, conf []byte) error {
 	_, err := r.cli.Put(context.Background(), key, string(conf))
 	if err != nil {
 		return err
@@ -25,7 +14,7 @@ func (r *EtcdClient) RegisterConf2Registry(key string, conf []byte) error {
 	return nil
 }
 
-func (r *EtcdClient) GetConfFromRegistry(key string) ([]byte, error) {
+func (r *EtcdRegister) GetConfFromRegistry(key string) ([]byte, error) {
 	resp, err := r.cli.Get(context.Background(), key)
 	if err != nil {
 		return nil, err
