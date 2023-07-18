@@ -6,6 +6,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer/roundrobin"
 	"google.golang.org/grpc/resolver"
+	"strings"
 	"sync"
 	"time"
 )
@@ -32,8 +33,9 @@ type EtcdRegister struct {
 	balancerName string
 }
 
+// 注意协议名必须小写  url.parse中 会将协议名转为小写
 func (r *EtcdRegister) Scheme() string {
-	return r.schema
+	return strings.ToLower(r.schema)
 }
 
 func NewClient(etcdAddr []string, schema string, opts ...EtcdOption) (*EtcdRegister, error) {
