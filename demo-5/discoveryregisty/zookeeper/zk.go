@@ -5,10 +5,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer/roundrobin"
 	"google.golang.org/grpc/resolver"
-	"grpc-demo/demo-5/discoveryregisty"
 	"net"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
 
@@ -38,26 +36,9 @@ type ZkClient struct {
 	lock    sync.Locker
 	options []grpc.DialOption
 
-	resolvers    map[string]*discoveryregisty.Resolver
+	resolvers    map[string]*Resolver
 	localConns   map[string][]resolver.Address
 	balancerName string
-}
-
-func (s *ZkClient) Build(target resolver.Target, cc resolver.ClientConn, opts resolver.BuildOptions) (resolver.Resolver, error) {
-	fmt.Printf("build resolver: %+v, cc: %+v\n", target, cc.UpdateState)
-	// log.ZDebug(context.Background(), "build resolver start", "target", target, "cc", cc.UpdateState)
-	r := &discoveryregisty.Resolver{}
-	r.SetTarget(target)
-	r.SetCc(cc)
-	r.SetGetConnsRemote(s.GetConnsRemote)
-	r.ResolveNowZK(resolver.ResolveNowOptions{})
-	s.lock.Lock()
-	defer s.lock.Unlock()
-	serviceName := strings.TrimLeft(target.URL.Path, "/")
-	s.resolvers[serviceName] = r
-	fmt.Printf("build resolver finished: %+v, cc: %+v, key: %s\n", target, cc.UpdateState, serviceName)
-	// log.ZDebug(context.Background(), "build resolver finished", "target", target, "cc", cc.UpdateState, "serviceName", serviceName)
-	return r, nil
 }
 
 func (s *ZkClient) Scheme() string { return s.scheme }
@@ -102,7 +83,7 @@ func NewClient(zkServers []string, zkRoot string, options ...ZkOption) (*ZkClien
 		scheme:     zkRoot,
 		timeout:    timeout,
 		localConns: make(map[string][]resolver.Address),
-		resolvers:  make(map[string]*discoveryregisty.Resolver),
+		resolvers:  make(map[string]*Resolver),
 		lock:       &sync.Mutex{},
 	}
 	client.ticker = time.NewTicker(defaultFreq)

@@ -3,7 +3,6 @@ package etcd
 import (
 	"context"
 	"fmt"
-	"github.com/pkg/errors"
 	"go.etcd.io/etcd/api/v3/mvccpb"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"google.golang.org/grpc"
@@ -12,8 +11,8 @@ import (
 	"strings"
 )
 
-func (r *EtcdRegister) watch(prefix string, addrList []resolver.Address) {
-	rch := r.cli.Watch(context.Background(), prefix, clientv3.WithPrefix())
+func (r *EtcdRegister) watch(serviceName string, addrList []resolver.Address) {
+	rch := r.cli.Watch(context.Background(), GetPrefix(r.schema, serviceName), clientv3.WithPrefix())
 	for n := range rch {
 		flag := 0
 		for _, ev := range n.Events {
@@ -41,7 +40,12 @@ func (r *EtcdRegister) watch(prefix string, addrList []resolver.Address) {
 		}
 
 		if flag == 1 {
-			// r.cc.UpdateState(resolver.State{Addresses: addrList})
+			r.lock.Lock()
+			defer r.lock.Unlock()
+			// 清空本地缓存数据
+			r.localConns[serviceName] = r.localConns[serviceName][:0]
+			r.resolvers[serviceName].cc.UpdateState(resolver.State{Addresses: addrList})
+			r.resolvers[serviceName].addrs = addrList
 			fmt.Println("update: ", addrList)
 		}
 	}
@@ -63,34 +67,31 @@ func (r *EtcdRegister) GetConnsRemote(serviceName string) (conns []resolver.Addr
 func (s *EtcdRegister) GetConns(ctx context.Context, serviceName string, opts ...grpc.DialOption) ([]grpc.ClientConnInterface, error) {
 	fmt.Printf("get conns from client, serviceName: %s\n", serviceName)
 	s.lock.Lock()
+	defer s.lock.Unlock()
 	opts = append(s.options, opts...)
 	conns := s.localConns[serviceName]
 	if len(conns) == 0 {
 		var err error
 		fmt.Printf("get conns from etcd remote, serviceName: %s\n", serviceName)
-		conns, err = s.GetConnsRemote(serviceName)
+		addrs, err := s.GetConnsRemote(serviceName)
 		if err != nil {
-			s.lock.Unlock()
 			return nil, err
 		}
-		if len(conns) == 0 {
+		if len(addrs) == 0 {
 			return nil, fmt.Errorf("no conn for service %s, grpc server may not exist, local conn is %v, please check etcd server %v, key: %s", serviceName, s.localConns, s.etcdAddr, s.key)
+		}
+		for _, addr := range addrs {
+			cc, err := grpc.DialContext(ctx, addr.Addr, append(s.options, opts...)...)
+			if err != nil {
+				fmt.Println("dialContext failed", err, "addr", addr.Addr, "opts", append(s.options, opts...))
+				return nil, err
+			}
+			conns = append(conns, cc)
 		}
 		s.localConns[serviceName] = conns
 	}
-	s.lock.Unlock()
-	var ret []grpc.ClientConnInterface
-	for _, conn := range conns {
-		cc, err := grpc.DialContext(ctx, conn.Addr, append(s.options, opts...)...)
-		if err != nil {
-			return nil, errors.Wrap(err, fmt.Sprintf("conns dialContext error, conn: %s", conn.Addr))
-		}
-		ret = append(ret, cc)
-	}
-	fmt.Printf("dial ctx success, serviceName: %s\n", serviceName)
-	return ret, nil
+	return conns, nil
 }
-
 func (r *EtcdRegister) GetConn(ctx context.Context, serviceName string, opts ...grpc.DialOption) (grpc.ClientConnInterface, error) {
 	newOpts := append(r.options, grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, r.balancerName)))
 	fmt.Printf("get conn from client, serviceName: %s\n", serviceName)

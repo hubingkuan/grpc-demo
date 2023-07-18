@@ -6,8 +6,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer/roundrobin"
 	"google.golang.org/grpc/resolver"
-	"grpc-demo/demo-5/discoveryregisty"
-	"strings"
 	"sync"
 	"time"
 )
@@ -15,38 +13,23 @@ import (
 const Default_TTL = 10
 
 type EtcdRegister struct {
-	cli      *clientv3.Client
-	userName string
-	password string
-	schema   string
-	key      string
-
+	// 这部分属于服务注册专用
+	cli         *clientv3.Client
+	userName    string
+	password    string
+	etcdAddr    []string
+	schema      string
+	key         string
 	closeCh     chan struct{}
 	keepAliveCh <-chan *clientv3.LeaseKeepAliveResponse
-	etcdAddr    []string
 
-	lock    sync.Locker
-	options []grpc.DialOption
-
-	resolvers    map[string]*discoveryregisty.Resolver
-	localConns   map[string][]resolver.Address
+	// 全局锁操作resolvers 和localConns
+	lock sync.Locker
+	// 这部分属于服务发现专用
+	resolvers    map[string]*Resolver
+	localConns   map[string][]grpc.ClientConnInterface
+	options      []grpc.DialOption
 	balancerName string
-}
-
-func (s *EtcdRegister) Build(target resolver.Target, cc resolver.ClientConn, opts resolver.BuildOptions) (resolver.Resolver, error) {
-	fmt.Printf("build resolver: %+v\n", target)
-	r := &discoveryregisty.Resolver{}
-	r.SetTarget(target)
-	r.SetCc(cc)
-	r.SetGetConnsRemote(s.GetConnsRemote)
-	r.ResolveNowZK(resolver.ResolveNowOptions{})
-	s.lock.Lock()
-	defer s.lock.Unlock()
-	serviceName := strings.TrimLeft(target.URL.Path, "/")
-	s.resolvers[serviceName] = r
-	fmt.Printf("build resolver finished: %+v,key: %s\n", target, serviceName)
-	// go s.watch(GetPrefix(s.schema, serviceName),)
-	return r, nil
 }
 
 func (r *EtcdRegister) Scheme() string {
@@ -58,8 +41,8 @@ func NewClient(etcdAddr []string, schema string, opts ...EtcdOption) (*EtcdRegis
 		schema:     schema,
 		etcdAddr:   etcdAddr,
 		lock:       &sync.Mutex{},
-		resolvers:  make(map[string]*discoveryregisty.Resolver),
-		localConns: make(map[string][]resolver.Address),
+		localConns: make(map[string][]grpc.ClientConnInterface),
+		resolvers:  make(map[string]*Resolver),
 	}
 	for _, opt := range opts {
 		opt(register)
@@ -74,6 +57,7 @@ func NewClient(etcdAddr []string, schema string, opts ...EtcdOption) (*EtcdRegis
 		panic(err)
 	}
 	register.cli = client
+	resolver.Register(register)
 	return register, err
 }
 
@@ -125,6 +109,6 @@ func (r *EtcdRegister) AddOption(opts ...grpc.DialOption) {
 	r.options = append(r.options, opts...)
 }
 
-func (r *EtcdRegister) GetClientLocalConns() map[string][]resolver.Address {
+func (r *EtcdRegister) GetClientLocalConns() map[string][]grpc.ClientConnInterface {
 	return r.localConns
 }

@@ -5,7 +5,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/resolver"
 	"grpc-demo/demo-5/config"
-	"grpc-demo/demo-5/discoveryregisty"
 	"sync"
 	"testing"
 	"time"
@@ -21,7 +20,7 @@ func TestEtcdClient_Register(t *testing.T) {
 		etcdAddr     []string
 		lock         sync.Locker
 		options      []grpc.DialOption
-		resolvers    map[string]*discoveryregisty.Resolver
+		resolvers    map[string]*Resolver
 		localConns   map[string][]resolver.Address
 		balancerName string
 	}
@@ -49,7 +48,7 @@ func TestEtcdClient_Register(t *testing.T) {
 	r, _ := NewClient(config.Config.Etcd.EtcdAddr, config.Config.Etcd.EtcdSchema)
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := r.Register(tt.args.serviceName, tt.args.host, tt.args.port, tt.args.opts...); (err != nil) != tt.wantErr {
+			if err := r.Register(tt.args.serviceName, tt.args.host, tt.args.port); (err != nil) != tt.wantErr {
 				t.Errorf("Register() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

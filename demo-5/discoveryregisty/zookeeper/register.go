@@ -4,25 +4,15 @@ import (
 	"github.com/go-zookeeper/zk"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/resolver"
-	"grpc-demo/demo-5/discoveryregisty"
 	"time"
 )
 
-func (s *ZkClient) CreateRpcRootNodes(serviceNames []string) error {
-	for _, serviceName := range serviceNames {
-		if err := s.ensureName(serviceName); err != nil && err != zk.ErrNodeExists {
-			return err
-		}
-	}
-	return nil
-}
-
-func (s *ZkClient) Register(rpcRegisterName, host string, port int, opts ...grpc.DialOption) error {
+func (s *ZkClient) Register(rpcRegisterName, host string, port int) error {
 	if err := s.ensureName(rpcRegisterName); err != nil {
 		return err
 	}
 	addr := s.getAddr(host, port)
-	_, err := grpc.Dial(addr, opts...)
+	_, err := grpc.Dial(addr)
 	if err != nil {
 		return err
 	}
@@ -44,6 +34,6 @@ func (s *ZkClient) UnRegister() error {
 	time.Sleep(time.Second)
 	s.node = ""
 	s.localConns = make(map[string][]resolver.Address)
-	s.resolvers = make(map[string]*discoveryregisty.Resolver)
+	s.resolvers = make(map[string]*Resolver)
 	return nil
 }

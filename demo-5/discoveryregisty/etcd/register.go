@@ -4,13 +4,12 @@ import (
 	"context"
 	"fmt"
 	clientv3 "go.etcd.io/etcd/client/v3"
-	"google.golang.org/grpc"
 	"net"
 	"strconv"
 	"time"
 )
 
-func (r *EtcdRegister) Register(serviceName, host string, port int, opts ...grpc.DialOption) error {
+func (r *EtcdRegister) Register(serviceName, host string, port int) error {
 	ctx := context.Background()
 	args := fmt.Sprintf("RegisterEtcd args: schema:%s,serviceName:%s,host:%s,port:%d", r.schema, serviceName, host, port)
 	fmt.Println("RegisterEtcd args: ", args)
@@ -63,7 +62,8 @@ func (r *EtcdRegister) Register(serviceName, host string, port int, opts ...grpc
 			// 定时器时间到了但是续租通知没有收到 此时重新进行续租
 			case <-ticker.C:
 				if r.keepAliveCh == nil {
-					ctx, _ := context.WithCancel(context.Background())
+					ctx, cancel := context.WithCancel(context.Background())
+					defer cancel()
 					resp, err := r.cli.Grant(ctx, int64(Default_TTL))
 					if err != nil {
 						fmt.Println("Grant failed ", err.Error(), args)
@@ -88,9 +88,4 @@ func (r *EtcdRegister) UnRegister() error {
 	r.closeCh <- struct{}{}
 	_, err := r.cli.Delete(context.Background(), r.key)
 	return err
-}
-
-func (r *EtcdRegister) CreateRpcRootNodes(serviceNames []string) error {
-	// TODO implement me
-	panic("implement me")
 }
