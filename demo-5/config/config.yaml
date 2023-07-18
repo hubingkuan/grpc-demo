@@ -1,5 +1,6 @@
 etcd:
-  etcdSchema: openIM
+#  注意协议名必须小写  url.parse中 会将协议名转为小写
+  etcdSchema: openim
   etcdAddr: [ 127.0.0.1:2379 ]
   username:
   password:

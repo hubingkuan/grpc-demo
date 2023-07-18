@@ -18,7 +18,7 @@ func (r *EtcdRegister) Register(serviceName, host string, port int) error {
 	serviceKey := GetPrefix(r.schema, serviceName) + serviceValue
 	r.key = serviceKey
 	// 授权租约
-	resp, err := r.cli.Grant(ctx, int64(Default_TTL))
+	resp, err := r.cli.Grant(ctx, 3)
 	if err != nil {
 		fmt.Println("Grant failed ", err.Error())
 		return err
@@ -41,7 +41,7 @@ func (r *EtcdRegister) Register(serviceName, host string, port int) error {
 	r.closeCh = make(chan struct{})
 
 	go func() {
-		ticker := time.NewTicker(time.Duration(Default_TTL) * time.Second)
+		ticker := time.NewTicker(time.Duration(Default_TTL+1) * time.Second)
 		for {
 			select {
 			// 收到注销通知后 取消授权租约
@@ -59,9 +59,9 @@ func (r *EtcdRegister) Register(serviceName, host string, port int) error {
 				if res != nil {
 					fmt.Println("续租:", res.ID)
 				}
-			// 定时器时间到了但是续租通知没有收到 此时重新进行续租
 			case <-ticker.C:
 				if r.keepAliveCh == nil {
+					// 定时器时间到了但是续租通知没有收到 此时重新进行续租
 					ctx, cancel := context.WithCancel(context.Background())
 					defer cancel()
 					resp, err := r.cli.Grant(ctx, int64(Default_TTL))

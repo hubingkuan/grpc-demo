@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"google.golang.org/grpc"
 	pb "grpc-demo/demo-4/proto"
@@ -25,9 +26,13 @@ func (s Server) Register(ctx context.Context, request *pb.RegisterRequest) (*pb.
 }
 
 func main() {
+	var port int
+	flag.IntVar(&port, "port", 8001, "port")
+	flag.Parse()
+	addr := fmt.Sprintf("localhost:%d", port)
 	listener, err := net.Listen(
 		"tcp",
-		net.JoinHostPort("127.0.0.1", "8081"),
+		addr,
 	)
 	if err != nil {
 		panic(err)
@@ -37,7 +42,7 @@ func main() {
 	srv := grpc.NewServer(grpcOpts...)
 	pb.RegisterServerServer(srv, Server{})
 	r, _ := etcd.NewClient(config.Config.Etcd.EtcdAddr, config.Config.Etcd.EtcdSchema)
-	r.Register("helloServer", "127.0.0.1", 8081)
+	go r.Register("helloServer", "127.0.0.1", port)
 	srv.Serve(listener)
 }
 
