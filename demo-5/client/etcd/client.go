@@ -19,18 +19,20 @@ func main() {
 	// conns, _ := r.GetConns(context.Background(), "helloServer")
 	// fmt.Println(conns)
 
-	// 获取一个连接
-	conn, err := r.GetConn(context.Background(), "helloServer")
-	if err != nil {
-		panic(err)
+	for i := 0; i < 10; i++ {
+		// 获取一个连接
+		conn, err := r.GetConn(context.Background(), "helloServer")
+		if err != nil {
+			panic(err)
+		}
+		client := pb.NewServerClient(conn)
+		helloResponse, err := client.Hello(context.Background(), &pb.Empty{})
+		if err != nil {
+			fmt.Printf("err: %v", err)
+			return
+		}
+		fmt.Println("resp: ", helloResponse)
 	}
-	client := pb.NewServerClient(conn)
-	helloResponse, err := client.Hello(context.Background(), &pb.Empty{})
-	if err != nil {
-		fmt.Printf("err: %v", err)
-		return
-	}
-	fmt.Println("resp: ", helloResponse)
 }
 
 func RpcClientInterceptor(
