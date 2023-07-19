@@ -12,6 +12,8 @@ import (
 	"grpc-demo/demo-5/discoveryregisty/etcd"
 	"net"
 	"net/http"
+	"os"
+	"os/signal"
 	"strings"
 )
 
@@ -48,6 +50,15 @@ func main() {
 	r, _ := etcd.NewClient(config.Config.Etcd.EtcdAddr, config.Config.Etcd.EtcdSchema)
 	go r.Register("helloServer", "127.0.0.1", port)
 	go startTrace()
+
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, os.Interrupt)
+	go func() {
+		select {
+		case <-signals:
+			r.UnRegister()
+		}
+	}()
 	srv.Serve(listener)
 }
 

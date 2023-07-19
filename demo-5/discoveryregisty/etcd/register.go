@@ -47,11 +47,8 @@ func (r *EtcdRegister) Register(serviceName, host string, port int) error {
 			// 收到注销通知后 取消授权租约
 			case <-r.closeCh:
 				fmt.Println("unregister")
-				if err := r.UnRegister(); err != nil {
+				if _, err := r.cli.Delete(context.Background(), r.key); err != nil {
 					fmt.Println("unregister failed error", err)
-				}
-				if _, err := r.cli.Revoke(context.Background(), resp.ID); err != nil {
-					fmt.Println("revoke fail")
 				}
 				goto END
 			// 收到续租通知
@@ -84,8 +81,6 @@ func (r *EtcdRegister) Register(serviceName, host string, port int) error {
 	return err
 }
 
-func (r *EtcdRegister) UnRegister() error {
+func (r *EtcdRegister) UnRegister() {
 	r.closeCh <- struct{}{}
-	_, err := r.cli.Delete(context.Background(), r.key)
-	return err
 }
