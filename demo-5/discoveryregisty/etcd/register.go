@@ -83,6 +83,7 @@ func (r *EtcdRegister) Register(serviceName, host string, port int) error {
 	return err
 }
 
-func (r *EtcdRegister) UnRegister() {
+func (r *EtcdRegister) UnRegister() error {
 	r.closeCh <- struct{}{}
+	return nil
 }

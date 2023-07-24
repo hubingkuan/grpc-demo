@@ -12,6 +12,7 @@ func (s *ZkClient) RegisterConf2Registry(key string, conf []byte) error {
 			return err
 		}
 	}
+	// flags: 0 代表持久节点     FlagEphemeral=1 FlagSequence=2  FlagTTL=4
 	_, err = s.conn.Create(s.getPath(key), conf, 0, zk.WorldACL(zk.PermAll))
 	if err != zk.ErrNodeExists {
 		return err

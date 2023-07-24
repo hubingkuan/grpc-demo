@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"google.golang.org/grpc"
 	"grpc-demo/demo-5/config"
-	"grpc-demo/demo-5/discoveryregisty/etcd"
+	"grpc-demo/demo-5/discoveryregisty/zookeeper"
 	"grpc-demo/demo-5/interceptor"
 	pb "grpc-demo/demo-5/proto"
 	"log"
@@ -48,11 +48,14 @@ func main() {
 	srv := grpc.NewServer(grpcOpts...)
 	// 服务注册grpc服务器
 	pb.RegisterServerServer(srv, Server{})
-	r, err := etcd.NewClient(config.Config.Etcd.Address, config.Config.Etcd.Schema)
+	r, err := zookeeper.NewClient(config.Config.Etcd.Address, config.Config.Etcd.Schema, zookeeper.WithUserNameAndPassword(
+		config.Config.Zookeeper.UserName,
+		config.Config.Zookeeper.Password,
+	), zookeeper.WithTimeout(5))
 	if err != nil {
 		log.Fatalln("init etcd client failed, err:", err)
 	}
-	// 服务注册etcd
+	// 服务注册zookeeper
 	err = r.Register("helloServer", "127.0.0.1", port)
 	if err != nil {
 		log.Fatalln("register server failed, err:", err)

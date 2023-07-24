@@ -7,7 +7,6 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/resolver"
-	"io"
 	"strings"
 )
 
@@ -101,10 +100,4 @@ func (s *ZkClient) GetConn(ctx context.Context, serviceName string, opts ...grpc
 	newOpts := append(s.options, grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, s.balancerName)))
 	fmt.Printf("get conn from client, serviceName: %s\n", serviceName)
 	return grpc.DialContext(ctx, fmt.Sprintf("%s:///%s", s.scheme, serviceName), append(newOpts, opts...)...)
-}
-
-func (s *ZkClient) CloseConn(conn grpc.ClientConnInterface) {
-	if closer, ok := conn.(io.Closer); ok {
-		closer.Close()
-	}
 }

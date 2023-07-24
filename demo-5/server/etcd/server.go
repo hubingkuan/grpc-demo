@@ -50,7 +50,10 @@ func main() {
 	srv := grpc.NewServer(grpcOpts...)
 	// 服务注册grpc服务器
 	pb.RegisterServerServer(srv, Server{})
-	r, err := etcd.NewClient(config.Config.Etcd.Address, config.Config.Etcd.Schema)
+	r, err := etcd.NewClient(config.Config.Etcd.Address, config.Config.Etcd.Schema, etcd.WithUserNameAndPassword(
+		config.Config.Etcd.UserName,
+		config.Config.Etcd.Password,
+	), etcd.WithTimeout(5))
 	if err != nil {
 		log.Fatalln("init etcd client failed, err:", err)
 	}

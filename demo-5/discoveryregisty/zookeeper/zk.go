@@ -25,19 +25,22 @@ type ZkClient struct {
 	zkServers []string
 	scheme    string
 	userName  string
-
 	password  string
+	// 连接超时时间
 	timeout   int
 	eventChan <-chan zk.Event
-	node      string
-	ticker    *time.Ticker
 
-	lock    sync.Locker
-	options []grpc.DialOption
+	node string
+	// 定时刷新
+	ticker *time.Ticker
 
+	// 服务发现专用
 	resolvers    map[string]*Resolver
 	localConns   map[string][]resolver.Address
+	options      []grpc.DialOption
 	balancerName string
+	// 全局锁
+	lock sync.Locker
 }
 
 func (s *ZkClient) Scheme() string { return strings.ToLower(s.scheme) }
