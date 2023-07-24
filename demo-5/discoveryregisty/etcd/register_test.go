@@ -45,7 +45,7 @@ func TestEtcdClient_Register(t *testing.T) {
 			},
 		},
 	}
-	r, _ := NewClient(config.Config.Etcd.EtcdAddr, config.Config.Etcd.EtcdSchema)
+	r, _ := NewClient(config.Config.Etcd.Address, config.Config.Etcd.Schema)
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := r.Register(tt.args.serviceName, tt.args.host, tt.args.port); (err != nil) != tt.wantErr {

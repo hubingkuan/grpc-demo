@@ -7,7 +7,6 @@ import (
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/resolver"
-	"io"
 	"strings"
 )
 
@@ -96,10 +95,4 @@ func (r *EtcdRegister) GetConn(ctx context.Context, serviceName string, opts ...
 	newOpts := append(r.options, grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, r.balancerName)))
 	fmt.Printf("get conn from client, serviceName: %s\n", serviceName)
 	return grpc.DialContext(ctx, fmt.Sprintf("%s:///%s", r.schema, serviceName), append(newOpts, opts...)...)
-}
-
-func (r *EtcdRegister) CloseConn(conn grpc.ClientConnInterface) {
-	if closer, ok := conn.(io.Closer); ok {
-		closer.Close()
-	}
 }

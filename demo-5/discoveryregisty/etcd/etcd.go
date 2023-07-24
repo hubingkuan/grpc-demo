@@ -11,10 +11,10 @@ import (
 	"time"
 )
 
-const Default_TTL = 10
+const default_conn_TTL = 5
 
 type EtcdRegister struct {
-	// 这部分属于服务注册专用
+	// 服务注册专用
 	cli         *clientv3.Client
 	userName    string
 	password    string
@@ -24,13 +24,16 @@ type EtcdRegister struct {
 	closeCh     chan struct{}
 	keepAliveCh <-chan *clientv3.LeaseKeepAliveResponse
 
-	// 全局锁操作resolvers 和localConns
-	lock sync.Locker
-	// 这部分属于服务发现专用
+	// 连接超时配置
+	timeout int
+
+	// 服务发现专用
 	resolvers    map[string]*Resolver
 	localConns   map[string][]grpc.ClientConnInterface
 	options      []grpc.DialOption
 	balancerName string
+	// 全局锁操作resolvers 和localConns
+	lock sync.Locker
 }
 
 // 注意协议名必须小写  url.parse中 会将协议名转为小写
@@ -42,6 +45,7 @@ func NewClient(etcdAddr []string, schema string, opts ...EtcdOption) (*EtcdRegis
 	register := &EtcdRegister{
 		schema:     schema,
 		etcdAddr:   etcdAddr,
+		timeout:    default_conn_TTL,
 		lock:       &sync.Mutex{},
 		localConns: make(map[string][]grpc.ClientConnInterface),
 		resolvers:  make(map[string]*Resolver),
@@ -51,7 +55,7 @@ func NewClient(etcdAddr []string, schema string, opts ...EtcdOption) (*EtcdRegis
 	}
 	client, err := clientv3.New(clientv3.Config{
 		Endpoints:   register.etcdAddr,
-		DialTimeout: time.Duration(Default_TTL) * time.Second,
+		DialTimeout: time.Duration(register.timeout) * time.Second,
 		Username:    register.userName,
 		Password:    register.password,
 	})
@@ -64,6 +68,12 @@ func NewClient(etcdAddr []string, schema string, opts ...EtcdOption) (*EtcdRegis
 }
 
 type EtcdOption func(*EtcdRegister)
+
+func WithOptions(opts ...grpc.DialOption) EtcdOption {
+	return func(client *EtcdRegister) {
+		client.options = opts
+	}
+}
 
 func WithRoundRobin() EtcdOption {
 	return func(client *EtcdRegister) {
@@ -78,9 +88,9 @@ func WithUserNameAndPassword(userName, password string) EtcdOption {
 	}
 }
 
-func WithOptions(opts ...grpc.DialOption) EtcdOption {
+func WithTimeout(timeout int) EtcdOption {
 	return func(client *EtcdRegister) {
-		client.options = opts
+		client.timeout = timeout
 	}
 }
 

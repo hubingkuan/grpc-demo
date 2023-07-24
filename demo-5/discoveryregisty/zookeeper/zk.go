@@ -7,6 +7,7 @@ import (
 	"google.golang.org/grpc/resolver"
 	"net"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -19,16 +20,14 @@ const (
 )
 
 type ZkClient struct {
-	// zk server地址
-	zkServers []string
-	zkRoot    string
-	userName  string
-	password  string
-
-	scheme string
-
-	timeout   int
+	// 服务注册专用
 	conn      *zk.Conn
+	zkServers []string
+	scheme    string
+	userName  string
+
+	password  string
+	timeout   int
 	eventChan <-chan zk.Event
 	node      string
 	ticker    *time.Ticker
@@ -41,7 +40,7 @@ type ZkClient struct {
 	balancerName string
 }
 
-func (s *ZkClient) Scheme() string { return s.scheme }
+func (s *ZkClient) Scheme() string { return strings.ToLower(s.scheme) }
 
 type ZkOption func(*ZkClient)
 
@@ -76,11 +75,10 @@ func WithTimeout(timeout int) ZkOption {
 	}
 }
 
-func NewClient(zkServers []string, zkRoot string, options ...ZkOption) (*ZkClient, error) {
+func NewClient(zkServers []string, schema string, options ...ZkOption) (*ZkClient, error) {
 	client := &ZkClient{
 		zkServers:  zkServers,
-		zkRoot:     "/",
-		scheme:     zkRoot,
+		scheme:     schema,
 		timeout:    timeout,
 		localConns: make(map[string][]resolver.Address),
 		resolvers:  make(map[string]*Resolver),
@@ -99,7 +97,6 @@ func NewClient(zkServers []string, zkRoot string, options ...ZkOption) (*ZkClien
 			return nil, err
 		}
 	}
-	client.zkRoot += zkRoot
 	client.eventChan = eventChan
 	client.conn = conn
 	if err := client.ensureRoot(); err != nil {
@@ -163,7 +160,7 @@ func (s *ZkClient) GetZkConn() *zk.Conn {
 }
 
 func (s *ZkClient) GetRootPath() string {
-	return s.zkRoot
+	return s.scheme
 }
 
 func (s *ZkClient) GetNode() string {
@@ -171,7 +168,7 @@ func (s *ZkClient) GetNode() string {
 }
 
 func (s *ZkClient) ensureRoot() error {
-	return s.ensureAndCreate(s.zkRoot)
+	return s.ensureAndCreate(s.scheme)
 }
 
 func (s *ZkClient) ensureName(rpcRegisterName string) error {
@@ -179,7 +176,7 @@ func (s *ZkClient) ensureName(rpcRegisterName string) error {
 }
 
 func (s *ZkClient) getPath(rpcRegisterName string) string {
-	return s.zkRoot + "/" + rpcRegisterName
+	return s.scheme + "/" + rpcRegisterName
 }
 
 func (s *ZkClient) getAddr(host string, port int) string {

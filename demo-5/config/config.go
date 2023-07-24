@@ -17,11 +17,18 @@ var Config config
 
 type config struct {
 	Etcd struct {
-		EtcdSchema string   `yaml:"etcdSchema"`
-		EtcdAddr   []string `yaml:"etcdAddr"`
-		UserName   string   `yaml:"userName"`
-		Password   string   `yaml:"password"`
+		Schema   string   `yaml:"schema"`
+		Address  []string `yaml:"address"`
+		UserName string   `yaml:"username"`
+		Password string   `yaml:"password"`
 	} `yaml:"etcd"`
+
+	Zookeeper struct {
+		Schema   string   `yaml:"schema"`
+		Address  []string `yaml:"address"`
+		UserName string   `yaml:"username"`
+		Password string   `yaml:"password"`
+	} `yaml:"zookeeper"`
 }
 
 func init() {

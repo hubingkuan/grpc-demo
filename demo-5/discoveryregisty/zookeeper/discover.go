@@ -79,7 +79,7 @@ func (s *ZkClient) GetConns(ctx context.Context, serviceName string, opts ...grp
 			return nil, err
 		}
 		if len(conns) == 0 {
-			return nil, fmt.Errorf("no conn for service %s, grpc server may not exist, local conn is %v, please check zookeeper server %v, path: %s", serviceName, s.localConns, s.zkServers, s.zkRoot)
+			return nil, fmt.Errorf("no conn for service %s, grpc server may not exist, local conn is %v, please check zookeeper server %v, path: %s", serviceName, s.localConns, s.zkServers, s.scheme)
 		}
 		s.localConns[serviceName] = conns
 	}

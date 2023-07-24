@@ -1,45 +1,18 @@
-package main
+package interceptor
 
 import (
 	"context"
 	"errors"
 	"fmt"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
-	"grpc-demo/demo-5/config"
-	"grpc-demo/demo-5/discoveryregisty/zookeeper"
-	pb "grpc-demo/demo-5/proto"
-	"log"
-	"time"
 )
 
-func main() {
-	client, err := zookeeper.NewClient(config.Config.Zookeeper.Address, config.Config.Zookeeper.Schema, zookeeper.WithUserNameAndPassword(
-		config.Config.Zookeeper.UserName,
-		config.Config.Zookeeper.Password,
-	), zookeeper.WithTimeout(5), zookeeper.WithRoundRobin(), zookeeper.WithFreq(time.Hour))
-	if err != nil {
-		log.Fatalln("init zookeeper client failed, err:", err)
+func rpcString(v interface{}) string {
+	if s, ok := v.(interface{ String() string }); ok {
+		return s.String()
 	}
-
-	// 客户端拦截器+ 不验证证书
-	client.AddOption(grpc.WithUnaryInterceptor(RpcClientInterceptor), grpc.WithTransportCredentials(insecure.NewCredentials()))
-
-	for i := 0; i < 10; i++ {
-		// 获取一个连接
-		conn, err := client.GetConn(context.Background(), "helloServer")
-		if err != nil {
-			panic(err)
-		}
-		client := pb.NewServerClient(conn)
-		helloResponse, err := client.Hello(context.Background(), &pb.Empty{})
-		if err != nil {
-			fmt.Printf("err: %v", err)
-			return
-		}
-		fmt.Println("resp: ", helloResponse)
-	}
+	return fmt.Sprintf("%+v", v)
 }
 
 func RpcClientInterceptor(
@@ -86,11 +59,4 @@ func getRpcContext(ctx context.Context, method string) (context.Context, error) 
 			md.Set("ConnID", connID)
 		}*/
 	return metadata.NewOutgoingContext(ctx, md), nil
-}
-
-func rpcString(v interface{}) string {
-	if s, ok := v.(interface{ String() string }); ok {
-		return s.String()
-	}
-	return fmt.Sprintf("%+v", v)
 }

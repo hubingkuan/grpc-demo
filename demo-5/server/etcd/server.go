@@ -6,15 +6,15 @@ import (
 	"fmt"
 	"golang.org/x/net/trace"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/peer"
 	pb "grpc-demo/demo-4/proto"
 	"grpc-demo/demo-5/config"
 	"grpc-demo/demo-5/discoveryregisty/etcd"
+	"grpc-demo/demo-5/interceptor"
+	"log"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
 )
 
 type Server struct {
@@ -43,12 +43,23 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	defer listener.Close()
+
 	var grpcOpts []grpc.ServerOption
-	grpcOpts = append(grpcOpts, grpc.ChainUnaryInterceptor(UnaryInterceptor()))
+	grpcOpts = append(grpcOpts, grpc.ChainUnaryInterceptor(interceptor.RpcServerInterceptor))
 	srv := grpc.NewServer(grpcOpts...)
+	// 服务注册grpc服务器
 	pb.RegisterServerServer(srv, Server{})
-	r, _ := etcd.NewClient(config.Config.Etcd.EtcdAddr, config.Config.Etcd.EtcdSchema)
-	go r.Register("helloServer", "127.0.0.1", port)
+	r, err := etcd.NewClient(config.Config.Etcd.Address, config.Config.Etcd.Schema)
+	if err != nil {
+		log.Fatalln("init etcd client failed, err:", err)
+	}
+	// 服务注册etcd
+	err = r.Register("helloServer", "127.0.0.1", port)
+	if err != nil {
+		log.Fatalln("register server failed, err:", err)
+	}
+	// 服务监控(grpc自带)
 	go startTrace()
 
 	signals := make(chan os.Signal, 1)
@@ -62,19 +73,6 @@ func main() {
 	srv.Serve(listener)
 }
 
-func UnaryInterceptor() grpc.UnaryServerInterceptor {
-	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
-		fmt.Printf("call %s\n", info.FullMethod)
-		ip, err := getClietIP(ctx)
-		if err != nil {
-			return nil, err
-		}
-		fmt.Println("client ip: ", ip)
-		resp, err = handler(ctx, req)
-		return resp, err
-	}
-}
-
 func startTrace() {
 	// localhost:50051/debug/events
 	// localhost:50051/debug/requests
@@ -84,16 +82,4 @@ func startTrace() {
 	}
 	go http.ListenAndServe(":50051", nil)
 	fmt.Println("Trace listen on 50051")
-}
-
-func getClietIP(ctx context.Context) (string, error) {
-	pr, ok := peer.FromContext(ctx)
-	if !ok {
-		return "", fmt.Errorf("[getClinetIP] invoke FromContext() failed")
-	}
-	if pr.Addr == net.Addr(nil) {
-		return "", fmt.Errorf("[getClientIP] peer.Addr is nil")
-	}
-	addSlice := strings.Split(pr.Addr.String(), ":")
-	return addSlice[0], nil
 }

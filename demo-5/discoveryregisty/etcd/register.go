@@ -9,16 +9,18 @@ import (
 	"time"
 )
 
+const default_lease_ttl = 5
+
 func (r *EtcdRegister) Register(serviceName, host string, port int) error {
 	ctx := context.Background()
 	args := fmt.Sprintf("RegisterEtcd args: schema:%s,serviceName:%s,host:%s,port:%d", r.schema, serviceName, host, port)
-	fmt.Println("RegisterEtcd args: ", args)
+	fmt.Println(args)
 
 	serviceValue := net.JoinHostPort(host, strconv.Itoa(port))
 	serviceKey := GetPrefix(r.schema, serviceName) + serviceValue
 	r.key = serviceKey
 	// 授权租约
-	resp, err := r.cli.Grant(ctx, 3)
+	resp, err := r.cli.Grant(ctx, default_lease_ttl)
 	if err != nil {
 		fmt.Println("Grant failed ", err.Error())
 		return err
@@ -41,14 +43,14 @@ func (r *EtcdRegister) Register(serviceName, host string, port int) error {
 	r.closeCh = make(chan struct{})
 
 	go func() {
-		ticker := time.NewTicker(time.Duration(Default_TTL+1) * time.Second)
+		ticker := time.NewTicker(time.Duration(default_lease_ttl+1) * time.Second)
 		for {
 			select {
 			// 收到注销通知后 取消授权租约
 			case <-r.closeCh:
 				fmt.Println("unregister")
-				if _, err := r.cli.Delete(context.Background(), r.key); err != nil {
-					fmt.Println("unregister failed error", err)
+				if _, err = r.cli.Revoke(context.Background(), resp.ID); err != nil {
+					fmt.Println("Revoke failed error", resp.ID, err)
 				}
 				goto END
 			// 收到续租通知
@@ -61,7 +63,7 @@ func (r *EtcdRegister) Register(serviceName, host string, port int) error {
 					// 定时器时间到了但是续租通知没有收到 此时重新进行续租
 					ctx, cancel := context.WithCancel(context.Background())
 					defer cancel()
-					resp, err := r.cli.Grant(ctx, int64(Default_TTL))
+					resp, err := r.cli.Grant(ctx, int64(default_lease_ttl))
 					if err != nil {
 						fmt.Println("Grant failed ", err.Error(), args)
 						continue
