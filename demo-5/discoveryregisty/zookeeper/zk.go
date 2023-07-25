@@ -23,6 +23,7 @@ type ZkClient struct {
 	// 服务注册专用
 	conn      *zk.Conn
 	zkServers []string
+	zkRoot    string
 	scheme    string
 	userName  string
 	password  string
@@ -36,11 +37,15 @@ type ZkClient struct {
 
 	// 服务发现专用
 	resolvers    map[string]*Resolver
-	localConns   map[string][]resolver.Address
+	localConns   map[string][]grpc.ClientConnInterface
 	options      []grpc.DialOption
 	balancerName string
 	// 全局锁
 	lock sync.Locker
+}
+
+func (s *ZkClient) GetClientLocalConns() map[string][]grpc.ClientConnInterface {
+	return s.localConns
 }
 
 func (s *ZkClient) Scheme() string { return strings.ToLower(s.scheme) }
@@ -82,8 +87,9 @@ func NewClient(zkServers []string, schema string, options ...ZkOption) (*ZkClien
 	client := &ZkClient{
 		zkServers:  zkServers,
 		scheme:     schema,
+		zkRoot:     "/" + schema,
 		timeout:    timeout,
-		localConns: make(map[string][]resolver.Address),
+		localConns: make(map[string][]grpc.ClientConnInterface),
 		resolvers:  make(map[string]*Resolver),
 		lock:       &sync.Mutex{},
 	}
@@ -91,7 +97,7 @@ func NewClient(zkServers []string, schema string, options ...ZkOption) (*ZkClien
 	for _, option := range options {
 		option(client)
 	}
-	conn, eventChan, err := zk.Connect(zkServers, time.Duration(client.timeout)*time.Second, zk.WithLogInfo(true))
+	conn, eventChan, err := zk.Connect(client.zkServers, time.Duration(client.timeout)*time.Second, zk.WithLogInfo(true))
 	if err != nil {
 		return nil, err
 	}
@@ -146,7 +152,7 @@ func (s *ZkClient) refresh() {
 }
 
 func (s *ZkClient) flushResolverAndDeleteLocal(serviceName string) {
-	fmt.Println("start flush %s", serviceName)
+	fmt.Println("start flush ", serviceName)
 	s.flushResolver(serviceName)
 	delete(s.localConns, serviceName)
 }
@@ -163,7 +169,7 @@ func (s *ZkClient) GetZkConn() *zk.Conn {
 }
 
 func (s *ZkClient) GetRootPath() string {
-	return s.scheme
+	return s.zkRoot
 }
 
 func (s *ZkClient) GetNode() string {
@@ -171,7 +177,7 @@ func (s *ZkClient) GetNode() string {
 }
 
 func (s *ZkClient) ensureRoot() error {
-	return s.ensureAndCreate(s.scheme)
+	return s.ensureAndCreate(s.zkRoot)
 }
 
 func (s *ZkClient) ensureName(rpcRegisterName string) error {
@@ -179,7 +185,7 @@ func (s *ZkClient) ensureName(rpcRegisterName string) error {
 }
 
 func (s *ZkClient) getPath(rpcRegisterName string) string {
-	return s.scheme + "/" + rpcRegisterName
+	return s.zkRoot + "/" + rpcRegisterName
 }
 
 func (s *ZkClient) getAddr(host string, port int) string {
@@ -188,8 +194,4 @@ func (s *ZkClient) getAddr(host string, port int) string {
 
 func (s *ZkClient) AddOption(opts ...grpc.DialOption) {
 	s.options = append(s.options, opts...)
-}
-
-func (s *ZkClient) GetClientLocalConns() map[string][]resolver.Address {
-	return s.localConns
 }

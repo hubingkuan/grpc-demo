@@ -67,33 +67,32 @@ func (s *ZkClient) GetConnsRemote(serviceName string) (conns []resolver.Address,
 func (s *ZkClient) GetConns(ctx context.Context, serviceName string, opts ...grpc.DialOption) ([]grpc.ClientConnInterface, error) {
 	fmt.Printf("get conns from client, serviceName: %s\n", serviceName)
 	s.lock.Lock()
+	defer s.lock.Unlock()
 	opts = append(s.options, opts...)
 	conns := s.localConns[serviceName]
 	if len(conns) == 0 {
 		var err error
 		fmt.Printf("get conns from zk remote, serviceName: %s\n", serviceName)
-		conns, err = s.GetConnsRemote(serviceName)
+		addrs, err := s.GetConnsRemote(serviceName)
 		if err != nil {
 			s.lock.Unlock()
 			return nil, err
 		}
-		if len(conns) == 0 {
+		if len(addrs) == 0 {
 			return nil, fmt.Errorf("no conn for service %s, grpc server may not exist, local conn is %v, please check zookeeper server %v, path: %s", serviceName, s.localConns, s.zkServers, s.scheme)
+		}
+
+		for _, addr := range addrs {
+			cc, err := grpc.DialContext(ctx, addr.Addr, append(s.options, opts...)...)
+			if err != nil {
+				fmt.Println("dialContext failed", err, "addr", addr.Addr, "opts", append(s.options, opts...))
+				return nil, errors.Wrap(err, fmt.Sprintf("conns dialContext error, conn: %s", addr.Addr))
+			}
+			conns = append(conns, cc)
 		}
 		s.localConns[serviceName] = conns
 	}
-	s.lock.Unlock()
-	var ret []grpc.ClientConnInterface
-	fmt.Printf("get conns from zk success, serviceName: %s\n", serviceName)
-	for _, conn := range conns {
-		cc, err := grpc.DialContext(ctx, conn.Addr, append(s.options, opts...)...)
-		if err != nil {
-			return nil, errors.Wrap(err, fmt.Sprintf("conns dialContext error, conn: %s", conn.Addr))
-		}
-		ret = append(ret, cc)
-	}
-	fmt.Printf("dial ctx success, serviceName: %s\n", serviceName)
-	return ret, nil
+	return conns, nil
 }
 
 func (s *ZkClient) GetConn(ctx context.Context, serviceName string, opts ...grpc.DialOption) (grpc.ClientConnInterface, error) {

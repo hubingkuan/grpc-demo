@@ -3,7 +3,6 @@ package zookeeper
 import (
 	"github.com/go-zookeeper/zk"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/resolver"
 	"time"
 )
 
@@ -12,10 +11,6 @@ func (s *ZkClient) Register(rpcRegisterName, host string, port int) error {
 		return err
 	}
 	addr := s.getAddr(host, port)
-	_, err := grpc.Dial(addr)
-	if err != nil {
-		return err
-	}
 	node, err := s.conn.CreateProtectedEphemeralSequential(s.getPath(rpcRegisterName)+"/"+addr+"_", []byte(addr), zk.WorldACL(zk.PermAll))
 	if err != nil {
 		return err
@@ -33,7 +28,7 @@ func (s *ZkClient) UnRegister() error {
 	}
 	time.Sleep(time.Second)
 	s.node = ""
-	s.localConns = make(map[string][]resolver.Address)
+	s.localConns = make(map[string][]grpc.ClientConnInterface)
 	s.resolvers = make(map[string]*Resolver)
 	return nil
 }

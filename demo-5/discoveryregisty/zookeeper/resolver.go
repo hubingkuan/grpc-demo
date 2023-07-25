@@ -20,8 +20,6 @@ func (r *Resolver) ResolveNowZK(o resolver.ResolveNowOptions) {
 		"start resolve now",
 		"target",
 		r.target,
-		"cc",
-		r.cc.UpdateState,
 		"serviceName",
 		strings.TrimLeft(r.target.URL.Path, "/"),
 	)
@@ -47,8 +45,7 @@ func (r *Resolver) ResolveNowZK(o resolver.ResolveNowOptions) {
 }
 
 func (s *ZkClient) Build(target resolver.Target, cc resolver.ClientConn, opts resolver.BuildOptions) (resolver.Resolver, error) {
-	fmt.Printf("build resolver: %+v, cc: %+v\n", target, cc.UpdateState)
-	// log.ZDebug(context.Background(), "build resolver start", "target", target, "cc", cc.UpdateState)
+	fmt.Printf("build resolver: %+v\n", target)
 	r := &Resolver{}
 	r.target = target
 	r.cc = cc
@@ -58,7 +55,7 @@ func (s *ZkClient) Build(target resolver.Target, cc resolver.ClientConn, opts re
 	defer s.lock.Unlock()
 	serviceName := strings.TrimLeft(target.URL.Path, "/")
 	s.resolvers[serviceName] = r
-	fmt.Printf("build resolver finished: %+v, cc: %+v, key: %s\n", target, cc.UpdateState, serviceName)
+	fmt.Printf("build resolver finished: %+v,  key: %s\n", target, serviceName)
 	return r, nil
 }
 
