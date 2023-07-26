@@ -10,9 +10,6 @@ import (
 	"strings"
 )
 
-var ErrConnIsNil = errors.New("conn is nil")
-var ErrConnIsNilButLocalNotNil = errors.New("conn is nil, but local is not nil")
-
 func (s *ZkClient) watch() {
 	for {
 		event := <-s.eventChan
@@ -40,10 +37,6 @@ func (s *ZkClient) watch() {
 
 func (s *ZkClient) GetConnsRemote(serviceName string) (conns []resolver.Address, err error) {
 	path := s.getPath(serviceName)
-	_, _, _, err = s.conn.ChildrenW(path)
-	if err != nil {
-		return nil, errors.Wrap(err, "children watch error")
-	}
 	childNodes, _, err := s.conn.Children(path)
 	if err != nil {
 		return nil, errors.Wrap(err, "get children error")
@@ -81,7 +74,6 @@ func (s *ZkClient) GetConns(ctx context.Context, serviceName string, opts ...grp
 		if len(addrs) == 0 {
 			return nil, fmt.Errorf("no conn for service %s, grpc server may not exist, local conn is %v, please check zookeeper server %v, path: %s", serviceName, s.localConns, s.zkServers, s.scheme)
 		}
-
 		for _, addr := range addrs {
 			cc, err := grpc.DialContext(ctx, addr.Addr, append(s.options, opts...)...)
 			if err != nil {

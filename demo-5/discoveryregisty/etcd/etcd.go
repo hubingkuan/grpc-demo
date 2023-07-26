@@ -36,7 +36,7 @@ type EtcdRegister struct {
 	lock sync.Locker
 }
 
-// 注意协议名必须小写  url.parse中 会将协议名转为小写
+// 注意协议名必须小写  grpc v1.55中 url.parse中 会将协议名转为小写
 func (r *EtcdRegister) Scheme() string {
 	return strings.ToLower(r.schema)
 }

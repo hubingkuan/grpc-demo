@@ -48,7 +48,7 @@ func main() {
 	srv := grpc.NewServer(grpcOpts...)
 	// 服务注册grpc服务器
 	pb.RegisterServerServer(srv, Server{})
-	r, err := zookeeper.NewClient(config.Config.Etcd.Address, config.Config.Etcd.Schema, zookeeper.WithUserNameAndPassword(
+	r, err := zookeeper.NewClient(config.Config.Zookeeper.Address, config.Config.Zookeeper.Schema, zookeeper.WithUserNameAndPassword(
 		config.Config.Zookeeper.UserName,
 		config.Config.Zookeeper.Password,
 	), zookeeper.WithTimeout(5))
@@ -60,6 +60,7 @@ func main() {
 	if err != nil {
 		log.Fatalln("register server failed, err:", err)
 	}
+	srv.Serve(listener)
 
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, os.Interrupt)
@@ -69,6 +70,5 @@ func main() {
 			r.UnRegister()
 		}
 	}()
-	srv.Serve(listener)
 
 }

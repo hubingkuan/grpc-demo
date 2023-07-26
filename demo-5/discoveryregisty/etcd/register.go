@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-const default_lease_ttl = 5
+const default_lease_ttl = 3
 
 func (r *EtcdRegister) Register(serviceName, host string, port int) error {
 	ctx := context.Background()
@@ -43,7 +43,7 @@ func (r *EtcdRegister) Register(serviceName, host string, port int) error {
 	r.closeCh = make(chan struct{})
 
 	go func() {
-		ticker := time.NewTicker(time.Duration(default_lease_ttl+1) * time.Second)
+		ticker := time.NewTicker(default_lease_ttl * time.Second)
 		for {
 			select {
 			// 收到注销通知后 取消授权租约
@@ -84,6 +84,8 @@ func (r *EtcdRegister) Register(serviceName, host string, port int) error {
 }
 
 func (r *EtcdRegister) UnRegister() error {
+	r.lock.Lock()
+	defer r.lock.Unlock()
 	r.closeCh <- struct{}{}
 	return nil
 }

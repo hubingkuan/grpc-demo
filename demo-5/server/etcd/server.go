@@ -62,6 +62,8 @@ func main() {
 	if err != nil {
 		log.Fatalln("register server failed, err:", err)
 	}
+	srv.Serve(listener)
+
 	// 服务监控(grpc自带)
 	go startTrace()
 
@@ -73,7 +75,6 @@ func main() {
 			r.UnRegister()
 		}
 	}()
-	srv.Serve(listener)
 }
 
 func startTrace() {
