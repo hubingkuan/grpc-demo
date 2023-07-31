@@ -53,8 +53,9 @@ func main() {
 		config.Config.Zookeeper.Password,
 	), zookeeper.WithTimeout(5))
 	if err != nil {
-		log.Fatalln("init etcd client failed, err:", err)
+		log.Fatalln("init zookeeper client failed, err:", err)
 	}
+
 	// 服务注册zookeeper
 	err = r.Register("helloServer", "127.0.0.1", port)
 	if err != nil {

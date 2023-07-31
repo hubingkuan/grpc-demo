@@ -10,24 +10,23 @@ import (
 	"grpc-demo/demo-5/interceptor"
 	pb "grpc-demo/demo-5/proto"
 	"log"
-	"time"
 )
 
 func main() {
-	client, err := zookeeper.NewClient(config.Config.Zookeeper.Address, config.Config.Zookeeper.Schema, zookeeper.WithUserNameAndPassword(
+	discoveryClient, err := zookeeper.NewClient(config.Config.Zookeeper.Address, config.Config.Zookeeper.Schema, zookeeper.WithUserNameAndPassword(
 		config.Config.Zookeeper.UserName,
 		config.Config.Zookeeper.Password,
-	), zookeeper.WithTimeout(5), zookeeper.WithRoundRobin(), zookeeper.WithFreq(time.Hour))
+	), zookeeper.WithTimeout(5), zookeeper.WithRoundRobin())
 	if err != nil {
 		log.Fatalln("init zookeeper client failed, err:", err)
 	}
 
 	// 客户端拦截器+ 不验证证书
-	client.AddOption(grpc.WithUnaryInterceptor(interceptor.RpcClientInterceptor), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	discoveryClient.AddOption(grpc.WithUnaryInterceptor(interceptor.RpcClientInterceptor), grpc.WithTransportCredentials(insecure.NewCredentials()))
 
 	for i := 0; i < 10; i++ {
 		// 获取一个连接
-		conn, err := client.GetConn(context.Background(), "helloServer")
+		conn, err := discoveryClient.GetConn(context.Background(), "helloServer")
 		if err != nil {
 			panic(err)
 		}

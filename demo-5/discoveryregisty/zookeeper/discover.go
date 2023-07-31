@@ -7,32 +7,26 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/resolver"
-	"strings"
 )
 
-func (s *ZkClient) watch() {
+func (s *ZkClient) watch(serviceName string) {
 	for {
-		event := <-s.eventChan
-		switch event.Type {
-		case zk.EventSession:
-			fmt.Printf("zk session event: %+v\n", event)
-		case zk.EventNodeChildrenChanged:
-			fmt.Printf("zk event: %s\n", event.Path)
-			l := strings.Split(event.Path, "/")
-			if len(l) > 1 {
-				serviceName := l[len(l)-1]
+		_, _, events, err := s.conn.ChildrenW(s.getPath(serviceName))
+		if err != nil {
+			fmt.Println("children watch error", err)
+			return
+		}
+		if event, ok := <-events; ok {
+			switch event.Type {
+			case zk.EventNodeChildrenChanged:
+				fmt.Printf("zk event: %s\n", event.Path)
 				s.lock.Lock()
 				s.flushResolverAndDeleteLocal(serviceName)
 				s.lock.Unlock()
+				fmt.Printf("zk event handle success: %s\n", event.Path)
 			}
-			fmt.Printf("zk event handle success: %s\n", event.Path)
-		case zk.EventNodeDataChanged:
-		case zk.EventNodeCreated:
-		case zk.EventNodeDeleted:
-		case zk.EventNotWatching:
 		}
 	}
-
 }
 
 func (s *ZkClient) GetConnsRemote(serviceName string) (conns []resolver.Address, err error) {
@@ -72,7 +66,7 @@ func (s *ZkClient) GetConns(ctx context.Context, serviceName string, opts ...grp
 			return nil, err
 		}
 		if len(addrs) == 0 {
-			return nil, fmt.Errorf("no conn for service %s, grpc server may not exist, local conn is %v, please check zookeeper server %v, path: %s", serviceName, s.localConns, s.zkServers, s.scheme)
+			return nil, fmt.Errorf("no conn for service %s, grpc server may not exist, local conn is %v, please check zookeeper server %v, path: %s", serviceName, s.localConns, s.zkServers, s.schema)
 		}
 		for _, addr := range addrs {
 			cc, err := grpc.DialContext(ctx, addr.Addr, append(s.options, opts...)...)
@@ -90,5 +84,5 @@ func (s *ZkClient) GetConns(ctx context.Context, serviceName string, opts ...grp
 func (s *ZkClient) GetConn(ctx context.Context, serviceName string, opts ...grpc.DialOption) (grpc.ClientConnInterface, error) {
 	newOpts := append(s.options, grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, s.balancerName)))
 	fmt.Printf("get conn from client, serviceName: %s\n", serviceName)
-	return grpc.DialContext(ctx, fmt.Sprintf("%s:///%s", s.scheme, serviceName), append(newOpts, opts...)...)
+	return grpc.DialContext(ctx, fmt.Sprintf("%s:///%s", s.schema, serviceName), append(newOpts, opts...)...)
 }

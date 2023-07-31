@@ -15,8 +15,7 @@ import (
 )
 
 const (
-	defaultFreq = time.Minute * 30
-	timeout     = 5
+	timeout = 5
 )
 
 type ZkClient struct {
@@ -24,16 +23,13 @@ type ZkClient struct {
 	conn      *zk.Conn
 	zkServers []string
 	zkRoot    string
-	scheme    string
+	schema    string
 	userName  string
 	password  string
 	// 连接超时时间
-	timeout   int
-	eventChan <-chan zk.Event
+	timeout int
 
 	node string
-	// 定时刷新
-	ticker *time.Ticker
 
 	// 服务发现专用
 	resolvers    map[string]*Resolver
@@ -48,7 +44,7 @@ func (s *ZkClient) GetClientLocalConns() map[string][]grpc.ClientConnInterface {
 	return s.localConns
 }
 
-func (s *ZkClient) Scheme() string { return strings.ToLower(s.scheme) }
+func (s *ZkClient) Scheme() string { return strings.ToLower(s.schema) }
 
 type ZkOption func(*ZkClient)
 
@@ -71,12 +67,6 @@ func WithOptions(opts ...grpc.DialOption) ZkOption {
 	}
 }
 
-func WithFreq(freq time.Duration) ZkOption {
-	return func(client *ZkClient) {
-		client.ticker = time.NewTicker(freq)
-	}
-}
-
 func WithTimeout(timeout int) ZkOption {
 	return func(client *ZkClient) {
 		client.timeout = timeout
@@ -86,18 +76,17 @@ func WithTimeout(timeout int) ZkOption {
 func NewClient(zkServers []string, schema string, options ...ZkOption) (*ZkClient, error) {
 	client := &ZkClient{
 		zkServers:  zkServers,
-		scheme:     schema,
+		schema:     schema,
 		zkRoot:     "/" + schema,
 		timeout:    timeout,
 		localConns: make(map[string][]grpc.ClientConnInterface),
 		resolvers:  make(map[string]*Resolver),
 		lock:       &sync.Mutex{},
 	}
-	client.ticker = time.NewTicker(defaultFreq)
 	for _, option := range options {
 		option(client)
 	}
-	conn, eventChan, err := zk.Connect(client.zkServers, time.Duration(client.timeout)*time.Second, zk.WithLogInfo(true))
+	conn, _, err := zk.Connect(client.zkServers, time.Duration(client.timeout)*time.Second, zk.WithLogInfo(true))
 	if err != nil {
 		return nil, err
 	}
@@ -106,15 +95,12 @@ func NewClient(zkServers []string, schema string, options ...ZkOption) (*ZkClien
 			return nil, err
 		}
 	}
-	client.eventChan = eventChan
 	client.conn = conn
 	if err := client.ensureRoot(); err != nil {
 		client.CloseZK()
 		return nil, err
 	}
 	resolver.Register(client)
-	go client.refresh()
-	go client.watch()
 	return client, nil
 }
 
@@ -134,21 +120,6 @@ func (s *ZkClient) ensureAndCreate(node string) error {
 		}
 	}
 	return nil
-}
-
-func (s *ZkClient) refresh() {
-	for range s.ticker.C {
-		fmt.Println("refresh local conns")
-		s.lock.Lock()
-		for rpcName := range s.resolvers {
-			s.flushResolver(rpcName)
-		}
-		for rpcName := range s.localConns {
-			delete(s.localConns, rpcName)
-		}
-		s.lock.Unlock()
-		fmt.Println("refresh local conns success")
-	}
 }
 
 func (s *ZkClient) flushResolverAndDeleteLocal(serviceName string) {
