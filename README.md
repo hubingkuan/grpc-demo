@@ -1,6 +1,8 @@
 # 基础
-1、下载protobuf:https://github.com/protocolbuffers/protobuf/releases/tag/v23.1
+1、下载protobuf:https://github.com/protocolbuffers/protobuf/releases/tag/v23.1 (注意版本和公司保持一致 3.17.3
+高版本将pb文件拆分了)
 设置系统环境变量:D:\protobuf\bin
+查看proto版本 protoc--version
 
 2、安装核心库:
 
