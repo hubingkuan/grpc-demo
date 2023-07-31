@@ -98,23 +98,17 @@ func GetPrefix(schema, serviceName string) string {
 	return fmt.Sprintf("%s:///%s/", schema, serviceName)
 }
 
-func exists(addrList []resolver.Address, addr string) bool {
-	for _, v := range addrList {
-		if v.Addr == addr {
-			return true
-		}
-	}
-	return false
+func (s *EtcdRegister) flushResolverAndDeleteLocal(serviceName string) {
+	fmt.Println("start flush ", serviceName)
+	s.flushResolver(serviceName)
+	delete(s.localConns, serviceName)
 }
 
-func remove(s []resolver.Address, addr string) ([]resolver.Address, bool) {
-	for i := range s {
-		if s[i].Addr == addr {
-			s[i] = s[len(s)-1]
-			return s[:len(s)-1], true
-		}
+func (s *EtcdRegister) flushResolver(serviceName string) {
+	r, ok := s.resolvers[serviceName]
+	if ok {
+		r.ResolveNowEtcd(resolver.ResolveNowOptions{})
 	}
-	return nil, false
 }
 
 func (r *EtcdRegister) AddOption(opts ...grpc.DialOption) {

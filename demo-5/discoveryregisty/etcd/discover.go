@@ -7,45 +7,23 @@ import (
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/resolver"
-	"strings"
 )
 
-func (r *EtcdRegister) watch(serviceName string, addrList []resolver.Address) {
+func (r *EtcdRegister) watch(serviceName string) {
 	rch := r.cli.Watch(context.Background(), GetPrefix(r.schema, serviceName), clientv3.WithPrefix())
 	for n := range rch {
-		flag := 0
 		for _, ev := range n.Events {
+			fmt.Printf("etcd event value: %s\n", ev.Kv.Value)
 			switch ev.Type {
 			case mvccpb.PUT:
-				if !exists(addrList, string(ev.Kv.Value)) {
-					flag = 1
-					addrList = append(addrList, resolver.Address{Addr: string(ev.Kv.Value)})
-					fmt.Println("after add, new list: ", addrList)
-				}
+				r.lock.Lock()
+				r.flushResolverAndDeleteLocal(serviceName)
+				r.lock.Unlock()
 			case mvccpb.DELETE:
-				fmt.Println("remove addr key: ", string(ev.Kv.Key), "value:", string(ev.Kv.Value))
-				i := strings.LastIndexAny(string(ev.Kv.Key), "/")
-				if i < 0 {
-					return
-				}
-				t := string(ev.Kv.Key)[i+1:]
-				fmt.Println("remove addr key: ", string(ev.Kv.Key), "value:", string(ev.Kv.Value), "addr:", t)
-				if s, ok := remove(addrList, t); ok {
-					flag = 1
-					addrList = s
-					fmt.Println("after remove, new list: ", addrList)
-				}
+				r.lock.Lock()
+				r.flushResolverAndDeleteLocal(serviceName)
+				r.lock.Unlock()
 			}
-		}
-
-		if flag == 1 {
-			r.lock.Lock()
-			defer r.lock.Unlock()
-			// 清空本地缓存数据
-			r.localConns[serviceName] = r.localConns[serviceName][:0]
-			r.resolvers[serviceName].cc.UpdateState(resolver.State{Addresses: addrList})
-			r.resolvers[serviceName].addrs = addrList
-			fmt.Println("update: ", addrList)
 		}
 	}
 }

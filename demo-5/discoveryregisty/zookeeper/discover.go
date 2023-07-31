@@ -11,6 +11,7 @@ import (
 
 func (s *ZkClient) watch(serviceName string) {
 	for {
+		fmt.Println("watching....")
 		_, _, events, err := s.conn.ChildrenW(s.getPath(serviceName))
 		if err != nil {
 			fmt.Println("children watch error", err)
