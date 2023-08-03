@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-const default_conn_TTL = 5
+const defaultConnTTL = 5
 
 type EtcdRegister struct {
 	// 服务注册专用
@@ -25,7 +25,7 @@ type EtcdRegister struct {
 	keepAliveCh <-chan *clientv3.LeaseKeepAliveResponse
 
 	// 连接超时配置
-	timeout int
+	timeout uint64
 
 	// 服务发现专用
 	resolvers    map[string]*Resolver
@@ -45,7 +45,7 @@ func NewClient(etcdAddr []string, schema string, opts ...EtcdOption) (*EtcdRegis
 	register := &EtcdRegister{
 		schema:     schema,
 		etcdAddr:   etcdAddr,
-		timeout:    default_conn_TTL,
+		timeout:    defaultConnTTL,
 		lock:       &sync.Mutex{},
 		localConns: make(map[string][]grpc.ClientConnInterface),
 		resolvers:  make(map[string]*Resolver),
@@ -60,7 +60,7 @@ func NewClient(etcdAddr []string, schema string, opts ...EtcdOption) (*EtcdRegis
 		Password:    register.password,
 	})
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	register.cli = client
 	resolver.Register(register)
@@ -88,7 +88,7 @@ func WithUserNameAndPassword(userName, password string) EtcdOption {
 	}
 }
 
-func WithTimeout(timeout int) EtcdOption {
+func WithTimeout(timeout uint64) EtcdOption {
 	return func(client *EtcdRegister) {
 		client.timeout = timeout
 	}

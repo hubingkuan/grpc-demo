@@ -29,6 +29,14 @@ type config struct {
 		UserName string   `yaml:"username"`
 		Password string   `yaml:"password"`
 	} `yaml:"zookeeper"`
+
+	Nacos struct {
+		Schema      string   `yaml:"schema"`
+		Address     []string `yaml:"address"`
+		NamespaceID string   `yaml:"namespace"`
+		UserName    string   `yaml:"username"`
+		Password    string   `yaml:"password"`
+	} `yaml:"nacos"`
 }
 
 func init() {

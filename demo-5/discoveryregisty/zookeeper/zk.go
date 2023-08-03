@@ -27,7 +27,7 @@ type ZkClient struct {
 	userName  string
 	password  string
 	// 连接超时时间
-	timeout int
+	timeout uint64
 
 	node string
 
@@ -67,7 +67,7 @@ func WithOptions(opts ...grpc.DialOption) ZkOption {
 	}
 }
 
-func WithTimeout(timeout int) ZkOption {
+func WithTimeout(timeout uint64) ZkOption {
 	return func(client *ZkClient) {
 		client.timeout = timeout
 	}
