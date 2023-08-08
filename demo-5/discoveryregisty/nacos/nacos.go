@@ -2,12 +2,17 @@ package nacos
 
 import (
 	"errors"
+	"fmt"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients/config_client"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client"
 	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/balancer/roundrobin"
+	"google.golang.org/grpc/resolver"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -32,10 +37,10 @@ type NacosRegister struct {
 	groupName   string
 	schema      string
 	// 连接超时时间
-	timeout      uint64
-	beatInterval int64
+	timeout uint64
 	// 服务注册名
-	key string
+	key     string
+	closeCh chan struct{}
 
 	// 服务发现专用
 	resolvers    map[string]*Resolver
@@ -46,13 +51,12 @@ type NacosRegister struct {
 	lock sync.Locker
 }
 
-func (n NacosRegister) Scheme() string {
+func (n *NacosRegister) Scheme() string {
 	return strings.ToLower(n.schema)
 }
 
-func (n NacosRegister) AddOption(opts ...grpc.DialOption) {
-	// TODO implement me
-	panic("implement me")
+func (n *NacosRegister) AddOption(opts ...grpc.DialOption) {
+	n.options = append(n.options, opts...)
 }
 
 type NacosOption func(*NacosRegister)
@@ -64,15 +68,21 @@ func WithUserNameAndPassword(userName, password string) NacosOption {
 	}
 }
 
-func WithTimeout(timeout uint64) NacosOption {
+func WithOptions(opts ...grpc.DialOption) NacosOption {
 	return func(client *NacosRegister) {
-		client.timeout = timeout
+		client.options = opts
 	}
 }
 
-func WithBeatInterval(beatInterval int64) NacosOption {
+func WithRoundRobin() NacosOption {
 	return func(client *NacosRegister) {
-		client.beatInterval = beatInterval
+		client.balancerName = roundrobin.Name
+	}
+}
+
+func WithTimeout(timeout uint64) NacosOption {
+	return func(client *NacosRegister) {
+		client.timeout = timeout
 	}
 }
 
@@ -89,12 +99,17 @@ func WithClusterName(clusterName string) NacosOption {
 }
 
 // namespaceID 需要提前设置好
-func NewClient(namespaceId string, nacosAddr []string, opts ...NacosOption) (*NacosRegister, error) {
+func NewClient(namespaceId string, nacosAddr []string, schema string, opts ...NacosOption) (*NacosRegister, error) {
 	register := &NacosRegister{
-		namespaceID:  namespaceId,
-		nacosAddr:    nacosAddr,
-		timeout:      timeout,
-		beatInterval: beatInterval,
+		namespaceID: namespaceId,
+		nacosAddr:   nacosAddr,
+		timeout:     timeout,
+		clusterName: "DEFAULT",
+		groupName:   "DEFAULT_GROUP",
+		schema:      schema,
+		lock:        &sync.Mutex{},
+		localConns:  make(map[string][]grpc.ClientConnInterface),
+		resolvers:   make(map[string]*Resolver),
 	}
 	for _, opt := range opts {
 		opt(register)
@@ -115,19 +130,20 @@ func NewClient(namespaceId string, nacosAddr []string, opts ...NacosOption) (*Na
 	}
 
 	// create ClientConfig
+	currentProcessPath, _ := os.Executable()
+	cacheDir := os.TempDir() + string(os.PathSeparator) + filepath.Base(currentProcessPath) + string(os.PathSeparator) + "cache" + string(os.PathSeparator) + namespaceId
+	logDir := os.TempDir() + string(os.PathSeparator) + filepath.Base(currentProcessPath) + string(os.PathSeparator) + "log" + string(os.PathSeparator) + namespaceId
 	cc := *constant.NewClientConfig(
 		// 命名空间ID
 		constant.WithNamespaceId(register.namespaceID),
 		// 请求Nacos服务端的超时时间
 		constant.WithTimeoutMs(register.timeout),
-		// 向服务器发送心跳的时间间隔，默认值为5000ms
-		constant.WithBeatInterval(register.beatInterval),
 		// 启动的时候不使用本地缓存加载服务信息数据
 		constant.WithNotLoadCacheAtStart(true),
 		// 缓存service信息的目录，默认是当前运行目录
-		constant.WithCacheDir("/tmp/nacos/cache"),
+		constant.WithCacheDir(cacheDir),
 		// 日志存储路径
-		constant.WithLogDir("/tmp/nacos/log"),
+		constant.WithLogDir(logDir),
 		// 日志默认级别 默认INFO
 		constant.WithLogLevel("debug"),
 		// 服务端API鉴权的用户名密码
@@ -161,11 +177,23 @@ func NewClient(namespaceId string, nacosAddr []string, opts ...NacosOption) (*Na
 	}
 	register.configClient = configClient
 	register.namingClient = namingClient
-	// resolver.Register(register)
+	resolver.Register(register)
 	return register, nil
 }
 
-func (n NacosRegister) GetClientLocalConns() map[string][]grpc.ClientConnInterface {
-	// TODO implement me
-	panic("implement me")
+func (n *NacosRegister) GetClientLocalConns() map[string][]grpc.ClientConnInterface {
+	return n.localConns
+}
+
+func (n *NacosRegister) flushResolverAndDeleteLocal(serviceName string) {
+	fmt.Println("start flush ", serviceName)
+	n.flushResolver(serviceName)
+	delete(n.localConns, serviceName)
+}
+
+func (n *NacosRegister) flushResolver(serviceName string) {
+	r, ok := n.resolvers[serviceName]
+	if ok {
+		r.ResolveNowNacos(resolver.ResolveNowOptions{})
+	}
 }

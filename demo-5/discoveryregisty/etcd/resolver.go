@@ -32,9 +32,6 @@ func (r *Resolver) ResolveNowEtcd(o resolver.ResolveNowOptions) {
 }
 
 func (s *EtcdRegister) Build(target resolver.Target, cc resolver.ClientConn, opts resolver.BuildOptions) (resolver.Resolver, error) {
-	if s.cli == nil {
-		return nil, fmt.Errorf("etcd clientv3 client failed, etcd:%s", target)
-	}
 	fmt.Printf("build resolver: %+v\n", target)
 	r := &Resolver{}
 	r.target = target

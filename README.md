@@ -145,7 +145,7 @@ ctx = metadata.NewOutgoingContext(ctx, metadata.Join(send, newMD))
    、metadata 客户端 服务端互传数据、proto生成脚本(validate、doc、inject tag、grpc)
 3. demo-3: 流式 grpc示例 流式拦截器
 4. demo-4: 服务注册与服务发现  (etcd官方包实现resolver)
-5. demo-5: 服务注册与服务发现  (etcd自定义实现resolver+zk自定义实现resolver)
+5. demo-5: 服务注册与服务发现  (etcd、zk、nacos 实现自定义resolver 服务注册+服务发现+服务配置)
 
 详情可参考:[metadata](https://github.com/grpc/grpc-go/blob/master/Documentation/grpc-metadata.md#unary-call)
 

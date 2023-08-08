@@ -10,7 +10,7 @@ import (
 var (
 	_, b, _, _ = runtime.Caller(0)
 	// Root folder of this project
-	Root = filepath.Join(filepath.Dir(b), "../")
+	root = filepath.Join(filepath.Dir(b), "../")
 )
 
 var Config config
@@ -40,7 +40,7 @@ type config struct {
 }
 
 func init() {
-	configPath := Root + "/config/config.yaml"
+	configPath := root + "/config/config.yaml"
 	bytes, err := os.ReadFile(configPath)
 	if err != nil {
 		panic(err)

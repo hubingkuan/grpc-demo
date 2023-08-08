@@ -13,7 +13,7 @@ func (r *EtcdRegister) watch(serviceName string) {
 	rch := r.cli.Watch(context.Background(), GetPrefix(r.schema, serviceName), clientv3.WithPrefix())
 	for n := range rch {
 		for _, ev := range n.Events {
-			fmt.Printf("etcd event value: %s\n", ev.Kv.Value)
+			fmt.Printf("etcd event type:%v,value: %s,serviceName:%s\n", ev.Type, ev.Kv.Value, serviceName)
 			switch ev.Type {
 			case mvccpb.PUT:
 				r.lock.Lock()

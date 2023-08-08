@@ -3,6 +3,7 @@ package nacos
 import (
 	"encoding/json"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients/config_client"
+	"github.com/nacos-group/nacos-sdk-go/v2/vo"
 	"grpc-demo/demo-5/config"
 	"testing"
 )
@@ -38,7 +39,7 @@ func TestNacosRegister_RegisterConf2Registry(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			n, _ := NewClient(config.Config.Nacos.NamespaceID, config.Config.Nacos.Address, WithGroupName("grpc-demo5"))
+			n, _ := NewClient(config.Config.Nacos.NamespaceID, config.Config.Nacos.Address, config.Config.Nacos.Schema, WithGroupName("grpc-demo5"))
 			// 监听config变化
 			// n.ListenConfig(tt.args.key, func(namespace, group, dataId, data string) {
 			// 	t.Log("namespace:", namespace, "group:", group, "dataId:", dataId, "data:", data)
@@ -62,10 +63,16 @@ func TestNacosRegister_RegisterConf2Registry(t *testing.T) {
 			// t.Log(m)
 
 			// 服务注册
-			n.Register("helloServer", "127.0.0.1", 7777)
+			// n.Register("helloServer", "127.0.0.1", 7777)
 
 			// 服务注销
-			// n.UnRegister()
+			n.namingClient.DeregisterInstance(vo.DeregisterInstanceParam{
+				Ip:          "127.0.0.1",
+				Port:        7777,
+				ServiceName: "helloServer",
+				GroupName:   n.groupName,
+				Cluster:     n.clusterName,
+			})
 		})
 	}
 }

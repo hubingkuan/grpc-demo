@@ -7,7 +7,7 @@ import (
 	"golang.org/x/net/trace"
 	"google.golang.org/grpc"
 	"grpc-demo/demo-5/config"
-	"grpc-demo/demo-5/discoveryregisty/etcd"
+	"grpc-demo/demo-5/discoveryregisty/nacos"
 	"grpc-demo/demo-5/interceptor"
 	pb "grpc-demo/demo-5/proto"
 	"log"
@@ -50,14 +50,14 @@ func main() {
 	srv := grpc.NewServer(grpcOpts...)
 	// 服务注册grpc服务器
 	pb.RegisterServerServer(srv, Server{})
-	r, err := etcd.NewClient(config.Config.Etcd.Address, config.Config.Etcd.Schema, etcd.WithUserNameAndPassword(
-		config.Config.Etcd.UserName,
-		config.Config.Etcd.Password,
-	), etcd.WithTimeout(5))
+	r, err := nacos.NewClient(config.Config.Nacos.NamespaceID, config.Config.Nacos.Address, config.Config.Nacos.Schema, nacos.WithUserNameAndPassword(
+		config.Config.Nacos.UserName,
+		config.Config.Nacos.Password,
+	), nacos.WithRoundRobin(), nacos.WithTimeout(5))
 	if err != nil {
-		log.Fatalln("init etcd client failed, err:", err)
+		log.Fatalln("init nacos client failed, err:", err)
 	}
-	// 服务注册etcd
+	// 服务注册nacos
 	err = r.Register("helloServer", "127.0.0.1", port)
 	if err != nil {
 		log.Fatalln("register server failed, err:", err)

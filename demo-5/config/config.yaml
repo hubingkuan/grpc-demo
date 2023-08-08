@@ -14,6 +14,6 @@ zookeeper:
 nacos:
   schema: openIM
   address: [ 127.0.0.1:8848 ]
-  namespace: "8c2de99a-29d4-4a61-83aa-797e0327adea"
+  namespace: public
   username:
   password:
