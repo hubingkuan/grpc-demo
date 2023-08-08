@@ -1,8 +1,24 @@
-# 基础
+# 项目目录
+
+1. demo-1: 最简单的grpc服务 server中的proto引用client中的proto的message
+2. demo-2: 拦截器(token校验、日志记录、校验参数、限流、重试、recovery、timeout、keepalive、监控(prometheus、opentracing))
+   、metadata 客户端 服务端互传数据、proto生成脚本(validate、doc、inject tag、grpc)
+3. demo-3: 流式 grpc示例 流式拦截器
+4. demo-4: 服务注册与服务发现  (etcd官方包实现resolver)
+5. demo-5: 服务注册与服务发现  (etcd、zk、nacos 实现自定义resolver 服务注册+服务发现+服务配置)
+6. demo-6: 简单的thrift服务
+
+详情可参考:[metadata](https://github.com/grpc/grpc-go/blob/master/Documentation/grpc-metadata.md#unary-call)
+
+grpc中间件参考: [中间件](https://github.com/grpc-ecosystem/go-grpc-middleware)
+
+## Grpc基础
+
 1、下载protobuf:https://github.com/protocolbuffers/protobuf/releases/tag/v23.1 (注意版本和公司保持一致 3.17.3
 高版本将pb文件拆分了)
-设置系统环境变量:D:\protobuf\bin
-查看proto版本 protoc--version
+
+* 设置系统环境变量: D:\protobuf\bin
+* 查看proto版本: protoc--version
 
 2、安装核心库:
 
@@ -37,7 +53,7 @@
 2. 不同包之间的 proto 文件不可以循环依赖，这会导致生成的 go 包之间也存在循环依赖，导致 go 代码编译不通过
 3. 同属于一个包内的 proto 文件之间的引用也需要声明 import
 
-# 传参
+## 传参
 
 1. 如何构建metadata
 
@@ -138,15 +154,19 @@ newMD := metadata.Pairs("k3", "v3")
 ctx = metadata.NewOutgoingContext(ctx, metadata.Join(send, newMD))
 ```
 
-# 项目目录
+## Thrift基础
 
-1. demo-1: 最简单的grpc服务 server中的proto引用client中的proto的message
-2. demo-2: 拦截器(token校验、日志记录、校验参数、限流、重试、recovery、timeout、keepalive、监控(prometheus、opentracing))
-   、metadata 客户端 服务端互传数据、proto生成脚本(validate、doc、inject tag、grpc)
-3. demo-3: 流式 grpc示例 流式拦截器
-4. demo-4: 服务注册与服务发现  (etcd官方包实现resolver)
-5. demo-5: 服务注册与服务发现  (etcd、zk、nacos 实现自定义resolver 服务注册+服务发现+服务配置)
+1、下载Thrift Golang库: go get github.com/apache/thrift/lib/go/thrift
 
-详情可参考:[metadata](https://github.com/grpc/grpc-go/blob/master/Documentation/grpc-metadata.md#unary-call)
+2、下载thrift编译器:https://dlcdn.apache.org/thrift/0.18.1/
 
-grpc中间件参考: [中间件](https://github.com/grpc-ecosystem/go-grpc-middleware)
+* 将下载的exe改名为thrift.exe
+* 设置系统环境变量:D:\thrift
+* 查看thrift版本 thrift -version
+
+3、编写thrift文件
+
+4、生成go文件命令:
+
+* thrift -out .. --gen go example.thrift : 在同级目录下生成golang的包 生成的format_data-remote是生成的测试文件
+* 

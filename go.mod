@@ -18,6 +18,7 @@ require (
 
 require (
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.1704 // indirect
+	github.com/apache/thrift v0.18.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/buger/jsonparser v1.1.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
