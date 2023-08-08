@@ -15,9 +15,9 @@ service SayHello {
 }
 
 message HelloRequest {
-    string requestName = 1;
+  optional string requestName = 1;
 }
 
 message HelloResponse {
-    string responseMsg = 1;
+  string responseMsg = 1;
 }

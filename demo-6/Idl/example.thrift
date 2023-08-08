@@ -1,3 +1,4 @@
+// 生成的目录名称和package 名称
 namespace go example
 
 struct Person {

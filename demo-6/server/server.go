@@ -11,7 +11,6 @@ import (
 type FormatDataImpl struct{}
 
 func (f FormatDataImpl) SayHello(ctx context.Context, name string) (_r *example.Person, _err error) {
-	// TODO implement me
 	age := int32(25)
 	return &example.Person{
 		Name: name,

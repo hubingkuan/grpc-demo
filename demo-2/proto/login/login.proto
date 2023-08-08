@@ -62,15 +62,15 @@ message WorldEndPointInfoRsp{
 }
 
 enum ErrCode{
-  none = 0;
-  Success = 1;
-  Unknown = 2;
-  SessionKey = 3;
-  ImageSize = 4;
-  FileType = 5;
-  OpenFile = 6;
-  ReadFile = 7;
-  TimeOut = 8;
+  NONE = 0;
+  SUCCESS = 1;
+  UNKNOWN = 2;
+  SESSION_KEY = 3;
+  IMAGE_SIZE = 4;
+  FILE_TYPE = 5;
+  OPEN_FILE = 6;
+  READ_FILE = 7;
+  TIMEOUT = 8;
 }
 
 

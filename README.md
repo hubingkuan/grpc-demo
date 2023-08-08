@@ -28,9 +28,51 @@ grpc中间件参考: [中间件](https://github.com/grpc-ecosystem/go-grpc-middl
 * go install github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc@latest (pb生成接口文档)
 * go install github.com/bufbuild/protoc-gen-validate@latest (pb验证参数)
 
-3、编写proto文件
+3、编写proto文件 规范
 
-4、生成go文件命令:
+* 包名package 小写
+* message 使用驼峰命名 字段命名采用小写字母+下划线分割
+
+```go
+message SongServerRequest {
+optional string song_name = 1;
+}
+```
+
+* enum使用驼峰命名 字段命名采用大写字母+下划线分割 使用分号结尾 默认值使用第一个枚举值
+
+```go
+enum Foo {
+NONE = 0;
+FIRST_VALUE = 1;
+SECOND_VALUE = 2;
+}
+```
+
+* 重复字段使用负数名称 repeated string keys =1;
+
+4、protobuf的数据类型
+
+```go
+double
+float
+int32
+uint32
+uint64
+sint32
+sint64
+fixed32
+fixed64
+bool
+string
+bytes
+enum
+message
+map<T, K>
+repeated T
+```
+
+5、生成go文件命令:
 
 * protoc --go_out=. hello.proto 生成go语言文件
 * protoc --go-grpc_out=. hello.proto 生成rpc文件
@@ -50,7 +92,7 @@ grpc中间件参考: [中间件](https://github.com/grpc-ecosystem/go-grpc-middl
     * option go_package: 生成的go文件的包名,路径,包名和路径之间用分号隔开
     * --go_out=paths=source_relative:. 参数是为了让加了 option go_package 声明的 proto 文件可以将 go 代码编译到与其同目录
 
-2. 不同包之间的 proto 文件不可以循环依赖，这会导致生成的 go 包之间也存在循环依赖，导致 go 代码编译不通过
+2. 不同包之间的 proto 文件不可以循环依赖,这会导致生成的 go 包之间也存在循环依赖,导致 go 代码编译不通过
 3. 同属于一个包内的 proto 文件之间的引用也需要声明 import
 
 ## 传参
@@ -66,7 +108,7 @@ md := metadata.Pairs(
 
 md := metadata.New(map[string]string{"key1": "val1", "key2": "val2"})
 
-// 注意：所有键将自动转换为小写， 因此，“key1”和“kEy1”将是相同的键，它们的值将合并到同一个列表中
+// 注意:所有键将自动转换为小写, 因此,“key1”和“kEy1”将是相同的键,它们的值将合并到同一个列表中
 ``` 
 
 2. 客户端发送metadata
@@ -164,9 +206,41 @@ ctx = metadata.NewOutgoingContext(ctx, metadata.Join(send, newMD))
 * 设置系统环境变量:D:\thrift
 * 查看thrift版本 thrift -version
 
-3、编写thrift文件
+3、编写thrift文件 规范
 
-4、生成go文件命令:
+4、thrift的数据类型
+
+```go
+// 基本类型
+bool:布尔型, 4位
+byte:带符号整数,8位
+i16:带符号整数, 18位
+i32:带符号整数, 32位
+i64:带符号整数, 64位
+double:64位浮点型
+string:UTF-8编码的字符串
+// 特殊类型
+binary:未经编码的字节流
+// 结构体
+struct:公共对象, 不能继承
+struct test{
+1: string name
+}
+// 枚举
+enum test{
+OK = 0,
+Fail = 1
+}
+// 容器
+list<T>:    有序列表
+set<T>:        无序集合
+map<T, K>:    映射数据
+// 异常类型
+exception:
+// 服务类型
+service:对应服务的类
+```
+
+5、生成go文件命令:
 
 * thrift -out .. --gen go example.thrift : 在同级目录下生成golang的包 生成的format_data-remote是生成的测试文件
-* 
