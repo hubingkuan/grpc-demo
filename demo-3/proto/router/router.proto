@@ -24,6 +24,10 @@ message Point {
   int32 longitude = 2;
 }
 
+message File{
+  bytes file = 1;
+}
+
 message Rectangle {
   Point lo = 1;
 

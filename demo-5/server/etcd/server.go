@@ -45,8 +45,9 @@ func main() {
 	}
 	defer listener.Close()
 
+	// 拦截器+设置最大发送接受数据大小  默认接受数据大小为4M 发送数据大小为int32最大值
 	var grpcOpts []grpc.ServerOption
-	grpcOpts = append(grpcOpts, grpc.ChainUnaryInterceptor(interceptor.RpcServerInterceptor))
+	grpcOpts = append(grpcOpts, grpc.ChainUnaryInterceptor(interceptor.RpcServerInterceptor), grpc.MaxRecvMsgSize(1024*1024*10), grpc.MaxSendMsgSize(1024*1024*10))
 	srv := grpc.NewServer(grpcOpts...)
 	// 服务注册grpc服务器
 	pb.RegisterServerServer(srv, Server{})

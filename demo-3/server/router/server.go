@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
-	router "grpc-demo/demo-3/proto"
+	"grpc-demo/demo-3/proto/router"
 	"io"
 	"log"
 	"math"
@@ -28,7 +28,12 @@ func (r *routerServer) GetFeature(ctx context.Context, point *router.Point) (*ro
 
 // 流式返回数据
 func (r *routerServer) ListFeatures(rectangle *router.Rectangle, serverStream router.RouteGuide_ListFeaturesServer) error {
+	ctx := serverStream.Context()
 	for i := 0; i < 10; i++ {
+		if ctx.Err() == context.Canceled || ctx.Err() == context.DeadlineExceeded {
+			log.Print("context is canceled\n")
+			return errors.New("server canceled")
+		}
 		if err := serverStream.Send(&router.Feature{
 			Name:     "test",
 			Location: &router.Point{Latitude: 1, Longitude: 2},

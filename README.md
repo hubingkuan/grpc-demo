@@ -70,6 +70,7 @@ enum
 message
 map<T, K>
 repeated T
+oneof :  如果消息中有很多可选字段 并且同时最多只能有一个字段被设置为非默认值 那么可以使用oneof (多选一 oneof内的字段不能用Repeated修饰)
 ```
 
 5、生成go文件命令:

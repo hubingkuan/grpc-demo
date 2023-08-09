@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	router "grpc-demo/demo-3/proto"
+	"grpc-demo/demo-3/proto/router"
 	"io"
 	"log"
 	"math/rand"
@@ -23,6 +23,7 @@ func printFeature(client router.RouteGuideClient, point *router.Point) {
 		log.Fatalf("client.GetFeature failed: %v", err)
 	}
 	log.Println(feature)
+
 }
 
 // 接受服务端的流式数据

@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+option go_package = "grpc-demo/demo-3/proto;upload";
+
+package upload;
+
+message UploadImageRequest{
+  oneof data{
+    ImageInfo imageInfo = 1;
+    bytes chunk_data = 2;
+  }
+}
+
+message ImageInfo{
+  string laptop_id = 1;
+  string image_type = 2;
+}
+
+message UploadImageResponse{
+  string id = 1;
+  uint32 size = 2;
+}
+
+service UploadService{
+  rpc UploadImage(stream UploadImageRequest) returns (UploadImageResponse);
+}

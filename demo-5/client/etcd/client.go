@@ -23,8 +23,8 @@ func main() {
 		log.Fatalln("init etcd client failed, err:", err)
 	}
 
-	// 客户端拦截器+ 不验证证书
-	discoveryClient.AddOption(grpc.WithUnaryInterceptor(interceptor.RpcClientInterceptor), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	// 客户端拦截器+ 不验证证书 设置最大发送接受数据大小
+	discoveryClient.AddOption(grpc.WithUnaryInterceptor(interceptor.RpcClientInterceptor), grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*10), grpc.MaxCallSendMsgSize(1024*1024*10)))
 
 	// 获取所有连接
 	// conns, _ := r.GetConns(context.Background(), "helloServer")
