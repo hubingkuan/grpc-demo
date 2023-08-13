@@ -3,10 +3,18 @@ package nacos
 import (
 	"fmt"
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
+	"google.golang.org/grpc"
+	"net"
+	"strconv"
 )
 
 func (n NacosRegister) Register(serviceName, host string, port int) error {
-	_, err := n.namingClient.RegisterInstance(vo.RegisterInstanceParam{
+	addr := net.JoinHostPort(host, strconv.Itoa(port))
+	_, err := grpc.Dial(addr)
+	if err != nil {
+		return err
+	}
+	_, err = n.namingClient.RegisterInstance(vo.RegisterInstanceParam{
 		Ip:          host,
 		Port:        uint64(port),
 		ServiceName: serviceName,

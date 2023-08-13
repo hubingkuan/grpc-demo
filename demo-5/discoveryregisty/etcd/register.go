@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	clientv3 "go.etcd.io/etcd/client/v3"
+	"google.golang.org/grpc"
 	"net"
 	"strconv"
 	"time"
@@ -17,6 +18,10 @@ func (r *EtcdRegister) Register(serviceName, host string, port int) error {
 	fmt.Println(args)
 
 	serviceValue := net.JoinHostPort(host, strconv.Itoa(port))
+	_, err := grpc.Dial(serviceValue)
+	if err != nil {
+		return err
+	}
 	serviceKey := GetPrefix(r.schema, serviceName) + serviceValue
 	r.key = serviceKey
 	// 授权租约

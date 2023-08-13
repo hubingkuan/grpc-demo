@@ -2,6 +2,7 @@ package zookeeper
 
 import (
 	"github.com/go-zookeeper/zk"
+	"google.golang.org/grpc"
 )
 
 func (s *ZkClient) Register(rpcRegisterName, host string, port int) error {
@@ -10,12 +11,22 @@ func (s *ZkClient) Register(rpcRegisterName, host string, port int) error {
 		return err
 	}
 	addr := s.getAddr(host, port)
+	_, err := grpc.Dial(addr)
+	if err != nil {
+		return err
+	}
 	// 再创建顺序临时节点 同时还具有保护性(确保断开重连后临时节点可以和客户端状态对接上)
-	node, err := s.conn.CreateProtectedEphemeralSequential(s.getPath(rpcRegisterName)+"/"+addr+"_", []byte(addr), zk.WorldACL(zk.PermAll))
+	node, err := s.CreateTempNode(rpcRegisterName, addr)
+	if err != nil {
+		return err
+	}
 	if err != nil {
 		return err
 	}
 	s.node = node
+	s.rpcRegisterName = rpcRegisterName
+	s.rpcRegisterAddr = addr
+	s.isRegistered = true
 	return nil
 }
 
@@ -25,5 +36,18 @@ func (s *ZkClient) UnRegister() error {
 		return err
 	}
 	s.node = ""
+	s.rpcRegisterName = ""
+	s.rpcRegisterAddr = ""
+	s.isRegistered = false
+	s.localConns = make(map[string][]grpc.ClientConnInterface)
+	s.resolvers = make(map[string]*Resolver)
 	return nil
+}
+
+func (s *ZkClient) CreateTempNode(rpcRegisterName, addr string) (node string, err error) {
+	return s.conn.CreateProtectedEphemeralSequential(
+		s.getPath(rpcRegisterName)+"/"+addr+"_",
+		[]byte(addr),
+		zk.WorldACL(zk.PermAll),
+	)
 }

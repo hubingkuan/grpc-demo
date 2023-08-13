@@ -29,7 +29,12 @@ type ZkClient struct {
 	// 连接超时时间
 	timeout uint64
 
-	node string
+	node            string
+	rpcRegisterName string
+	rpcRegisterAddr string
+
+	isStateDisconnected bool
+	isRegistered        bool
 
 	// 服务发现专用
 	resolvers    map[string]*Resolver
@@ -86,7 +91,7 @@ func NewClient(zkServers []string, schema string, options ...ZkOption) (*ZkClien
 	for _, option := range options {
 		option(client)
 	}
-	conn, _, err := zk.Connect(client.zkServers, time.Duration(client.timeout)*time.Second, zk.WithLogInfo(true))
+	conn, _, err := zk.Connect(client.zkServers, time.Duration(client.timeout)*time.Second, zk.WithLogInfo(true), zk.WithEventCallback(callback))
 	if err != nil {
 		return nil, err
 	}
@@ -102,6 +107,15 @@ func NewClient(zkServers []string, schema string, options ...ZkOption) (*ZkClien
 	}
 	resolver.Register(client)
 	return client, nil
+}
+
+// todo 改变watch逻辑 目前只有服务发现会使用到watch
+func callback(e zk.Event) {
+	fmt.Println("++++++++++++++++++++++++")
+	fmt.Println("path:", e.Path)
+	fmt.Println("type:", e.Type.String())
+	fmt.Println("state:", e.State.String())
+	fmt.Println("------------------------")
 }
 
 func (s *ZkClient) CloseZK() {
