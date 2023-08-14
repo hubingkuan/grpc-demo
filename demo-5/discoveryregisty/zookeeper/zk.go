@@ -37,8 +37,7 @@ type ZkClient struct {
 	rpcRegisterName string
 	rpcRegisterAddr string
 
-	isStateDisconnected bool
-	isRegistered        bool
+	isRegistered bool
 
 	// 服务发现专用
 	resolvers    map[string]*Resolver
@@ -115,17 +114,17 @@ func NewClient(zkServers []string, schema string, options ...ZkOption) (*ZkClien
 }
 
 func (s *ZkClient) reConn() error {
-	// s.conn.Close()
-	// conn, _, err := zk.Connect(s.zkServers, time.Duration(s.timeout)*time.Second, zk.WithLogInfo(true), zk.WithEventCallback(callback))
-	// if err != nil {
-	// 	return err
-	// }
-	// if s.userName != "" && s.password != "" {
-	// 	if err = conn.AddAuth("digest", []byte(s.userName+":"+s.password)); err != nil {
-	// 		return err
-	// 	}
-	// }
-	// s.conn = conn
+	s.conn.Close()
+	conn, _, err := zk.Connect(s.zkServers, time.Duration(s.timeout)*time.Second, zk.WithLogInfo(true), zk.WithEventCallback(callback))
+	if err != nil {
+		return err
+	}
+	if s.userName != "" && s.password != "" {
+		if err = conn.AddAuth("digest", []byte(s.userName+":"+s.password)); err != nil {
+			return err
+		}
+	}
+	s.conn = conn
 	node, err := s.CreateTempNode(s.rpcRegisterName, s.rpcRegisterAddr)
 	if err != nil {
 		return err
@@ -143,22 +142,17 @@ func callback(event zk.Event) {
 			fmt.Println("zk.StateConnecting")
 		case zk.StateDisconnected:
 			fmt.Println("zk.StateDisconnected")
-			zkClient.isStateDisconnected = true
-		case zk.StateConnected:
-			fmt.Println("zk.StateConnected")
-			zkClient.isStateDisconnected = false
-		case zk.StateExpired:
-			zkClient.isStateDisconnected = true
-			fmt.Println("zk.StateExpired")
-		case zk.StateHasSession:
-			fmt.Println("zk.StateHasSession")
-			if zkClient.isRegistered && !zkClient.isStateDisconnected {
-				// 客户端session过期情况下 重新注册服务节点
-				fmt.Printf("zk session event stateHasSession: %+v, client prepare to create new temp node\n", event)
+			if zkClient.isRegistered {
 				if err := zkClient.reConn(); err != nil {
 					fmt.Printf("zk session event stateHasSession: %+v, reConn error: %v\n", event, err)
 				}
 			}
+		case zk.StateConnected:
+			fmt.Println("zk.StateConnected")
+		case zk.StateExpired:
+			fmt.Println("zk.StateExpired")
+		case zk.StateHasSession:
+			fmt.Println("zk.StateHasSession")
 		}
 	}
 }
