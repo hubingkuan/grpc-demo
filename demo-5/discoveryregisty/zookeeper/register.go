@@ -11,10 +11,6 @@ func (s *ZkClient) Register(rpcRegisterName, host string, port int) error {
 		return err
 	}
 	addr := s.getAddr(host, port)
-	_, err := grpc.Dial(addr)
-	if err != nil {
-		return err
-	}
 	// 再创建顺序临时节点 同时还具有保护性(确保断开重连后临时节点可以和客户端状态对接上)
 	node, err := s.CreateTempNode(rpcRegisterName, addr)
 	if err != nil {

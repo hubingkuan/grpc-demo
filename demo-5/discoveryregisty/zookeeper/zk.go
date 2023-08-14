@@ -18,6 +18,10 @@ const (
 	timeout = 5
 )
 
+var (
+	zkClient *ZkClient
+)
+
 type ZkClient struct {
 	// 服务注册专用
 	conn      *zk.Conn
@@ -88,6 +92,7 @@ func NewClient(zkServers []string, schema string, options ...ZkOption) (*ZkClien
 		resolvers:  make(map[string]*Resolver),
 		lock:       &sync.Mutex{},
 	}
+	zkClient = client
 	for _, option := range options {
 		option(client)
 	}
@@ -109,13 +114,53 @@ func NewClient(zkServers []string, schema string, options ...ZkOption) (*ZkClien
 	return client, nil
 }
 
-// todo 改变watch逻辑 目前只有服务发现会使用到watch
-func callback(e zk.Event) {
-	fmt.Println("++++++++++++++++++++++++")
-	fmt.Println("path:", e.Path)
-	fmt.Println("type:", e.Type.String())
-	fmt.Println("state:", e.State.String())
-	fmt.Println("------------------------")
+func (s *ZkClient) reConn() error {
+	// s.conn.Close()
+	// conn, _, err := zk.Connect(s.zkServers, time.Duration(s.timeout)*time.Second, zk.WithLogInfo(true), zk.WithEventCallback(callback))
+	// if err != nil {
+	// 	return err
+	// }
+	// if s.userName != "" && s.password != "" {
+	// 	if err = conn.AddAuth("digest", []byte(s.userName+":"+s.password)); err != nil {
+	// 		return err
+	// 	}
+	// }
+	// s.conn = conn
+	node, err := s.CreateTempNode(s.rpcRegisterName, s.rpcRegisterAddr)
+	if err != nil {
+		return err
+	} else {
+		s.node = node
+	}
+	return nil
+}
+
+func callback(event zk.Event) {
+	switch event.Type {
+	case zk.EventSession:
+		switch event.State {
+		case zk.StateConnecting:
+			fmt.Println("zk.StateConnecting")
+		case zk.StateDisconnected:
+			fmt.Println("zk.StateDisconnected")
+			zkClient.isStateDisconnected = true
+		case zk.StateConnected:
+			fmt.Println("zk.StateConnected")
+			zkClient.isStateDisconnected = false
+		case zk.StateExpired:
+			zkClient.isStateDisconnected = true
+			fmt.Println("zk.StateExpired")
+		case zk.StateHasSession:
+			fmt.Println("zk.StateHasSession")
+			if zkClient.isRegistered && !zkClient.isStateDisconnected {
+				// 客户端session过期情况下 重新注册服务节点
+				fmt.Printf("zk session event stateHasSession: %+v, client prepare to create new temp node\n", event)
+				if err := zkClient.reConn(); err != nil {
+					fmt.Printf("zk session event stateHasSession: %+v, reConn error: %v\n", event, err)
+				}
+			}
+		}
+	}
 }
 
 func (s *ZkClient) CloseZK() {

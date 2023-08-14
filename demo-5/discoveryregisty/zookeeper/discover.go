@@ -19,25 +19,6 @@ func (s *ZkClient) watch(serviceName string) {
 		}
 		if event, ok := <-events; ok {
 			switch event.Type {
-			case zk.EventSession:
-				switch event.State {
-				case zk.StateHasSession:
-					if s.isRegistered && !s.isStateDisconnected {
-						fmt.Printf("zk session event stateHasSession: %+v, client prepare to create new temp node", event)
-						node, err := s.CreateTempNode(s.rpcRegisterName, s.rpcRegisterAddr)
-						if err != nil {
-							fmt.Printf("zk session event stateHasSession: %+v, create temp node error: %v", event, err)
-						} else {
-							s.node = node
-						}
-					}
-				case zk.StateDisconnected:
-					s.isStateDisconnected = true
-				case zk.StateConnected:
-					s.isStateDisconnected = false
-				default:
-					fmt.Printf("zk session event: %+v", event)
-				}
 			case zk.EventNodeChildrenChanged:
 				fmt.Printf("zk event: %s\n", event.Path)
 				s.lock.Lock()
@@ -47,6 +28,7 @@ func (s *ZkClient) watch(serviceName string) {
 			case zk.EventNodeCreated:
 			case zk.EventNodeDeleted:
 			case zk.EventNotWatching:
+			case zk.EventSession:
 			}
 		}
 	}

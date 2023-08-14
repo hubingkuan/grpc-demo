@@ -37,6 +37,6 @@ func main() {
 		return
 	}
 	fmt.Println("resp: ", helloResponse)
-	select {}
+	// time.Sleep(time.Second * 40)
 	// }
 }

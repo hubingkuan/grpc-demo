@@ -48,8 +48,11 @@ func main() {
 	var grpcOpts []grpc.ServerOption
 	grpcOpts = append(grpcOpts, grpc.ChainUnaryInterceptor(interceptor.RpcServerInterceptor))
 	srv := grpc.NewServer(grpcOpts...)
+	defer srv.GracefulStop()
 	// 服务注册grpc服务器
 	pb.RegisterServerServer(srv, Server{})
+
+	// 服务注册nacos
 	r, err := nacos.NewClient(config.Config.Nacos.NamespaceID, config.Config.Nacos.Address, config.Config.Nacos.Schema, nacos.WithUserNameAndPassword(
 		config.Config.Nacos.UserName,
 		config.Config.Nacos.Password,
@@ -57,12 +60,10 @@ func main() {
 	if err != nil {
 		log.Fatalln("init nacos client failed, err:", err)
 	}
-	// 服务注册nacos
 	err = r.Register("helloServer", "127.0.0.1", port)
 	if err != nil {
 		log.Fatalln("register server failed, err:", err)
 	}
-	srv.Serve(listener)
 
 	// 服务监控(grpc自带)
 	go startTrace()
@@ -75,6 +76,9 @@ func main() {
 			r.UnRegister()
 		}
 	}()
+
+	srv.Serve(listener)
+
 }
 
 func startTrace() {

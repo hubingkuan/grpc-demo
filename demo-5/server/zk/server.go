@@ -46,8 +46,11 @@ func main() {
 	var grpcOpts []grpc.ServerOption
 	grpcOpts = append(grpcOpts, grpc.ChainUnaryInterceptor(interceptor.RpcServerInterceptor))
 	srv := grpc.NewServer(grpcOpts...)
+	defer srv.GracefulStop()
 	// 服务注册grpc服务器
 	pb.RegisterServerServer(srv, Server{})
+
+	// 服务注册zookeeper
 	r, err := zookeeper.NewClient(config.Config.Zookeeper.Address, config.Config.Zookeeper.Schema, zookeeper.WithUserNameAndPassword(
 		config.Config.Zookeeper.UserName,
 		config.Config.Zookeeper.Password,
@@ -55,13 +58,10 @@ func main() {
 	if err != nil {
 		log.Fatalln("init zookeeper client failed, err:", err)
 	}
-
-	// 服务注册zookeeper
 	err = r.Register("helloServer", "127.0.0.1", port)
 	if err != nil {
 		log.Fatalln("register server failed, err:", err)
 	}
-	srv.Serve(listener)
 
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, os.Interrupt)
@@ -71,5 +71,7 @@ func main() {
 			r.UnRegister()
 		}
 	}()
+
+	srv.Serve(listener)
 
 }
