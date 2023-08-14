@@ -141,10 +141,10 @@ func callback(event zk.Event) {
 		case zk.StateConnecting:
 			fmt.Println("zk.StateConnecting")
 		case zk.StateDisconnected:
-			fmt.Println("zk.StateDisconnected")
+			fmt.Println("zk.StateDisconnected, start reConn")
 			if zkClient.isRegistered {
 				if err := zkClient.reConn(); err != nil {
-					fmt.Printf("zk session event stateHasSession: %+v, reConn error: %v\n", event, err)
+					fmt.Printf("zkClient.reConn error: %v\n", err)
 				}
 			}
 		case zk.StateConnected:
