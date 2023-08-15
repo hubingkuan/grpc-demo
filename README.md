@@ -8,6 +8,7 @@
 4. demo-4: 服务注册与服务发现  (etcd官方包实现resolver)
 5. demo-5: 服务注册与服务发现  (etcd、zk、nacos 实现自定义resolver 服务注册+服务发现+服务配置)
 6. demo-6: 简单的thrift服务
+7. demo-7：opentracing(确认性能瓶颈、收集程序指标、了解程序行为)+链路追踪
 
 详情可参考:[metadata](https://github.com/grpc/grpc-go/blob/master/Documentation/grpc-metadata.md#unary-call)
 

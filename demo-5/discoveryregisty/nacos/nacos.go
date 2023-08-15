@@ -132,7 +132,7 @@ func NewClient(namespaceId string, nacosAddr []string, schema string, opts ...Na
 	// create ClientConfig
 	currentProcessPath, _ := os.Executable()
 	cacheDir := os.TempDir() + string(os.PathSeparator) + filepath.Base(currentProcessPath) + string(os.PathSeparator) + "cache" + string(os.PathSeparator) + namespaceId
-	logDir := os.TempDir() + string(os.PathSeparator) + filepath.Base(currentProcessPath) + string(os.PathSeparator) + "log" + string(os.PathSeparator) + namespaceId
+	logDir := os.TempDir() + string(os.PathSeparator) + filepath.Base(currentProcessPath) + string(os.PathSeparator) + "logger" + string(os.PathSeparator) + namespaceId
 	cc := *constant.NewClientConfig(
 		// 命名空间ID
 		constant.WithNamespaceId(register.namespaceID),
