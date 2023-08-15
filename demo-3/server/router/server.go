@@ -103,6 +103,11 @@ func (r *routerServer) RecordRoute(clientStream router.RouteGuide_RecordRouteSer
 // 双向流式数据处理
 func (r *routerServer) RouteChat(stream router.RouteGuide_RouteChatServer) error {
 	for {
+		err := contextError(stream.Context())
+		if err != nil {
+			return err
+		}
+
 		in, err := stream.Recv()
 		if err == io.EOF {
 			return nil
@@ -113,6 +118,24 @@ func (r *routerServer) RouteChat(stream router.RouteGuide_RouteChatServer) error
 		if err := stream.Send(in); err != nil {
 			return err
 		}
+	}
+}
+
+func logError(err error) error {
+	if err != nil {
+		log.Print(err)
+	}
+	return err
+}
+
+func contextError(ctx context.Context) error {
+	switch ctx.Err() {
+	case context.Canceled:
+		return logError(status.Error(codes.Canceled, "request is canceled"))
+	case context.DeadlineExceeded:
+		return logError(status.Error(codes.DeadlineExceeded, "deadline is exceeded"))
+	default:
+		return nil
 	}
 }
 

@@ -128,6 +128,7 @@ func runRouteChat(client router.RouteGuideClient) {
 	// 关闭数据发送
 	stream.CloseSend()
 	<-waitc
+
 }
 
 func main() {
