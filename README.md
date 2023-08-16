@@ -92,10 +92,10 @@ oneof :  如果消息中有很多可选字段 并且同时最多只能有一个�
   --openapiv2_opt logtostderr=true \
   your/service/v1/your_service.proto
 * protoc -I . --grpc-gateway_out ./gen/go \
-  --grpc-gateway_opt logtostderr=true \
+  --grpc-gateway_opt logtostderr=true \    
   --grpc-gateway_opt paths=source_relative \
-  --grpc-gateway_opt grpc_api_configuration=path/to/config.yaml \
-  --grpc-gateway_opt standalone=true \
+  --grpc-gateway_opt standalone=true \  (作为独立的http服务器运行 不需要与其他web服务器集成 nginx apache)
+* --grpc-gateway_opt generate_unbound_methods=true \
   your/service/v1/your_service.proto
 
 **_注意事项_**
