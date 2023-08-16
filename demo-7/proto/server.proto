@@ -1,5 +1,8 @@
 syntax = "proto3";
 option go_package = "grpc-demo/demo-4/proto;pb";
+
+import "google/api/annotations.proto";
+
 message Empty {
 
 }
@@ -19,5 +22,10 @@ message RegisterResponse {
 
 service Server {
   rpc Hello(Empty) returns(HelloResponse);
-  rpc Register(RegisterRequest) returns(RegisterResponse);
+  rpc Register(RegisterRequest) returns(RegisterResponse){
+      option (google.api.http)={
+        post: "/api/v1/register",
+        body: "*"
+    };
+  }
 }

@@ -28,7 +28,9 @@ grpc中间件参考: [中间件](https://github.com/grpc-ecosystem/go-grpc-middl
 * go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 * go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 * go install github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc@latest (pb生成接口文档)
-* go install github.com/bufbuild/protoc-gen-validate@latest (pb验证参数)
+* go install github.com/bufbuild/protoc-gen-validate@latest (pb验证参数
+* go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway (反向代理生成gw代码)
+* go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2 (生成swagger文档))
 
 3、编写proto文件 规范
 
@@ -86,6 +88,15 @@ oneof :  如果消息中有很多可选字段 并且同时最多只能有一个�
   并在相对目录下生成文件)
 * protoc -I ../../../ -I ./ --go_out=plugins=grpc,paths=source_relative:. hello2.proto  (-I 指定搜索proto文件的目录
   ../../../就到了gopath下 另外hello2.proto的import是从项目根路径开始 go mod定义  )
+* protoc -I . --openapiv2_out ./gen/openapiv2 \
+  --openapiv2_opt logtostderr=true \
+  your/service/v1/your_service.proto
+* protoc -I . --grpc-gateway_out ./gen/go \
+  --grpc-gateway_opt logtostderr=true \
+  --grpc-gateway_opt paths=source_relative \
+  --grpc-gateway_opt grpc_api_configuration=path/to/config.yaml \
+  --grpc-gateway_opt standalone=true \
+  your/service/v1/your_service.proto
 
 **_注意事项_**
 

@@ -33,6 +33,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	helloClient := pb.NewServerClient(client)
+	_ = pb.NewServerClient(client)
 
 }
