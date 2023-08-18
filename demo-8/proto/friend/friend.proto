@@ -3,10 +3,11 @@ syntax = "proto3";
 package  friend;
 
 // ;后面是生产的go文件包名
-option go_package = "grpc-demo/demo-2/proto/friend/;friend";
+option go_package = "grpc-demo/demo-8/proto/friend/;friend";
 
 import "validate/validate.proto";
 import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
 
 //加好友的途径
 enum AddFriendType
@@ -23,6 +24,7 @@ enum DegreeMethod {
 
 // 好友基本信息
 message FriendBaseInfo {
+  // @inject_tag: gorm:"primary_key;column:player_id;type:bigint(20) unsigned;not null;comment:'玩家ID'" json:"playerID"
   uint64 playerId = 1 [(validate.rules).uint64.gt = 999];  // 玩家ID
   string name = 2 [(validate.rules).string = {
     pattern:   "^[^[0-9]A-Za-z]+( [^[0-9]A-Za-z]+)*$",
@@ -40,6 +42,7 @@ message FriendBaseInfo {
   string email = 12 [(validate.rules).string.email = true];
   bool x = 13 [(validate.rules).bool.const = true];  // 必须是指定的值 true
   repeated float xx = 14 [(validate.rules).repeated.unique = true]; // 重复的值必须是唯一的
+  Book book = 15;
 }
 
 message RadarSearchPlayerInfo {
@@ -51,13 +54,46 @@ message RadarSearchPlayerInfo {
   string nickName = 6; // 昵称
 }
 
-// 这里的service名字是生成的go文件中的 client和server的前缀名称  FriendClient  FriendServer
+message SnakeEnumRequest {
+  string what = 1;
+  string who = 2;
+  string where = 3;
+}
+
+message Book {
+  // The resource name of the book.
+  //
+  // Format: `publishers/{publisher}/books/{book}`
+  //
+  // Example: `publishers/1257894000000000000/books/my-book`
+  string name = 1;
+
+  // Output only. The book's ID.
+  string id = 2;
+
+  // Output only. Creation time of the book.
+  google.protobuf.Timestamp create_time = 3;
+}
+
+message SnakeEnumResponse {}
+
 service friend{
-  rpc GetFriendInfo(FriendBaseInfo) returns (RadarSearchPlayerInfo) {
+  rpc GetFriendInfo(FriendBaseInfo) returns (RadarSearchPlayerInfo){
     option (google.api.http) = {
-      post: "/v1/example/oneofenum"
+      post: "/v1/getFriendInfo"
       // body 必须是 FriendBaseInfo内的属性  一般来说都是 * 代表全部
-      body: "*"
+      body: "book"
+    };
+  }
+
+}
+
+
+service SnakeEnumService {
+  rpc SnakeEnum(SnakeEnumRequest) returns (SnakeEnumResponse) {
+    option (google.api.http) = {
+      // 将路径参数赋值给proto对象
+      get: "/v1/example/snake/{who}/{what}/{where}"
     };
   }
 }

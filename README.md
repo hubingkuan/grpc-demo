@@ -8,11 +8,16 @@
 4. demo-4: 服务注册与服务发现  (etcd官方包实现resolver)
 5. demo-5: 服务注册与服务发现  (etcd、zk、nacos 实现自定义resolver 服务注册+服务发现+服务配置)
 6. demo-6: 简单的thrift服务
-7. demo-7：opentracing(确认性能瓶颈、收集程序指标、了解程序行为)+链路追踪
+7. demo-7: opentracing(确认性能瓶颈、收集程序指标、了解程序行为)+链路追踪
+8. demo-8: grpc-gateway(将grpc服务转换成http服务)
 
-详情可参考:[metadata](https://github.com/grpc/grpc-go/blob/master/Documentation/grpc-metadata.md#unary-call)
+metadata参考:[metadata](https://github.com/grpc/grpc-go/blob/master/Documentation/grpc-metadata.md#unary-call)
 
 grpc中间件参考: [中间件](https://github.com/grpc-ecosystem/go-grpc-middleware)
+
+grpc网关参考: [grpc-gateway](https://grpc-ecosystem.github.io/grpc-gateway/)
+
+thrift参考: [thrift](https://thrift.apache.org/)
 
 ## Grpc基础
 
@@ -27,10 +32,12 @@ grpc中间件参考: [中间件](https://github.com/grpc-ecosystem/go-grpc-middl
 * go get google.golang.org/grpc
 * go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 * go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+* go install github.com/bufbuild/protoc-gen-validate@latest (pb验证参数)
+* go install github.com/favadi/protoc-go-inject-tag@latest (pb生成struct tag 参考login.proto)
 * go install github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc@latest (pb生成接口文档)
-* go install github.com/bufbuild/protoc-gen-validate@latest (pb验证参数
-* go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway (反向代理生成gw代码)
-* go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2 (生成swagger文档))
+* go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway (pb生成grpc-gateway代码
+  默认根据service名生成路由)
+* go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2 (pb生成swagger文档)
 
 3、编写proto文件 规范
 
@@ -91,7 +98,7 @@ oneof :  如果消息中有很多可选字段 并且同时最多只能有一个�
 * protoc -I . --openapiv2_out ./gen/openapiv2 \
   --openapiv2_opt logtostderr=true \
   your/service/v1/your_service.proto
-* protoc -I . --grpc-gateway_out ./gen/go \
+* protoc -I . --grpc-gateway_out ./ \
   --grpc-gateway_opt logtostderr=true \    
   --grpc-gateway_opt paths=source_relative \
   --grpc-gateway_opt standalone=true \  (作为独立的http服务器运行 不需要与其他web服务器集成 nginx apache)

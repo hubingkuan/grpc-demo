@@ -22,6 +22,10 @@ for %%i in (%all_proto%) do (
     for %%j in ("!protoPath!") do set "protoName=%%~nj"
     protoc --doc_out=!doc_dir! --doc_opt=html,!protoName!.html ^
            --validate_out=lang=go,paths=source_relative:./ ^
+           --grpc-gateway_out ./ ^
+           --grpc-gateway_opt paths=source_relative ^
+           --grpc-gateway_opt logtostderr=true ^
+           --grpc-gateway_opt standalone=true ^
            --go_out=plugins=grpc,module=grpc-demo/demo-2/proto:./ !protoPath!
     @echo protoc --go_out=plugins=grpc:. "%%i"
 
