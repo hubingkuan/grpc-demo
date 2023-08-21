@@ -506,6 +506,37 @@ func (m *SnakeEnumRequest) validate(all bool) error {
 
 	// no validation rules for Where
 
+	// no validation rules for Revision
+
+	if all {
+		switch v := interface{}(m.GetSub()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, SnakeEnumRequestValidationError{
+					field:  "Sub",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, SnakeEnumRequestValidationError{
+					field:  "Sub",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetSub()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return SnakeEnumRequestValidationError{
+				field:  "Sub",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return SnakeEnumRequestMultiError(errors)
 	}
@@ -816,3 +847,108 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = SnakeEnumResponseValidationError{}
+
+// Validate checks the field values on SnakeEnumRequest_SubMessage with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SnakeEnumRequest_SubMessage) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SnakeEnumRequest_SubMessage with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SnakeEnumRequest_SubMessageMultiError, or nil if none found.
+func (m *SnakeEnumRequest_SubMessage) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SnakeEnumRequest_SubMessage) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for SubField
+
+	if len(errors) > 0 {
+		return SnakeEnumRequest_SubMessageMultiError(errors)
+	}
+
+	return nil
+}
+
+// SnakeEnumRequest_SubMessageMultiError is an error wrapping multiple
+// validation errors returned by SnakeEnumRequest_SubMessage.ValidateAll() if
+// the designated constraints aren't met.
+type SnakeEnumRequest_SubMessageMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SnakeEnumRequest_SubMessageMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SnakeEnumRequest_SubMessageMultiError) AllErrors() []error { return m }
+
+// SnakeEnumRequest_SubMessageValidationError is the validation error returned
+// by SnakeEnumRequest_SubMessage.Validate if the designated constraints
+// aren't met.
+type SnakeEnumRequest_SubMessageValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SnakeEnumRequest_SubMessageValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SnakeEnumRequest_SubMessageValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SnakeEnumRequest_SubMessageValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SnakeEnumRequest_SubMessageValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SnakeEnumRequest_SubMessageValidationError) ErrorName() string {
+	return "SnakeEnumRequest_SubMessageValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SnakeEnumRequest_SubMessageValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSnakeEnumRequest_SubMessage.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SnakeEnumRequest_SubMessageValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SnakeEnumRequest_SubMessageValidationError{}

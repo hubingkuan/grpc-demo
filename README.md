@@ -99,10 +99,11 @@ oneof :  如果消息中有很多可选字段 并且同时最多只能有一个�
   --openapiv2_opt logtostderr=true \
   your/service/v1/your_service.proto
 * protoc -I . --grpc-gateway_out ./ \
-  --grpc-gateway_opt logtostderr=true \    
   --grpc-gateway_opt paths=source_relative \
-  --grpc-gateway_opt standalone=true \  (作为独立的http服务器运行 不需要与其他web服务器集成 nginx apache)
-* --grpc-gateway_opt generate_unbound_methods=true \
+  --grpc-gateway_opt logtostderr=true \    
+  --grpc-gateway_opt standalone=true \  (生成一个可以存在于其自己的包中的文件 与源proto文件分开生成 重命名包)
+  --grpc-gateway_opt generate_unbound_methods=true \  (对于没有定义options的rpc方法也自动生成映射http方法 生成的方法是post
+  url路径是 /全路径service name/method name 也就是 /package name.service name/method name)
   your/service/v1/your_service.proto
 
 **_注意事项_**

@@ -83,6 +83,44 @@ func local_request_Friend_GetFriendInfo_0(ctx context.Context, marshaler runtime
 
 }
 
+func request_Friend_Test_0(ctx context.Context, marshaler runtime.Marshaler, client FriendClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq RadarSearchPlayerInfo
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.Test(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_Friend_Test_0(ctx context.Context, marshaler runtime.Marshaler, server FriendServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq RadarSearchPlayerInfo
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.Test(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+var (
+	filter_SnakeEnumService_SnakeEnum_0 = &utilities.DoubleArray{Encoding: map[string]int{"who": 0, "what": 1, "where": 2}, Base: []int{1, 2, 4, 6, 0, 0, 0, 0, 0, 0}, Check: []int{0, 1, 1, 1, 2, 2, 3, 3, 4, 4}}
+)
+
 func request_SnakeEnumService_SnakeEnum_0(ctx context.Context, marshaler runtime.Marshaler, client SnakeEnumServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq SnakeEnumRequest
 	var metadata runtime.ServerMetadata
@@ -122,6 +160,13 @@ func request_SnakeEnumService_SnakeEnum_0(ctx context.Context, marshaler runtime
 	protoReq.Where, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "where", err)
+	}
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_SnakeEnumService_SnakeEnum_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
 	msg, err := client.SnakeEnum(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -170,6 +215,143 @@ func local_request_SnakeEnumService_SnakeEnum_0(ctx context.Context, marshaler r
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "where", err)
 	}
 
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_SnakeEnumService_SnakeEnum_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.SnakeEnum(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+var (
+	filter_SnakeEnumService_SnakeEnum_1 = &utilities.DoubleArray{Encoding: map[string]int{"who": 0, "what": 1, "where": 2, "revision": 3}, Base: []int{1, 2, 4, 6, 8, 0, 0, 0, 0, 0, 0, 0, 0}, Check: []int{0, 1, 1, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5}}
+)
+
+func request_SnakeEnumService_SnakeEnum_1(ctx context.Context, marshaler runtime.Marshaler, client SnakeEnumServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq SnakeEnumRequest
+	var metadata runtime.ServerMetadata
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["who"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "who")
+	}
+
+	protoReq.Who, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "who", err)
+	}
+
+	val, ok = pathParams["what"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "what")
+	}
+
+	protoReq.What, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "what", err)
+	}
+
+	val, ok = pathParams["where"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "where")
+	}
+
+	protoReq.Where, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "where", err)
+	}
+
+	val, ok = pathParams["revision"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "revision")
+	}
+
+	protoReq.Revision, err = runtime.Int64(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "revision", err)
+	}
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_SnakeEnumService_SnakeEnum_1); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.SnakeEnum(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_SnakeEnumService_SnakeEnum_1(ctx context.Context, marshaler runtime.Marshaler, server SnakeEnumServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq SnakeEnumRequest
+	var metadata runtime.ServerMetadata
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["who"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "who")
+	}
+
+	protoReq.Who, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "who", err)
+	}
+
+	val, ok = pathParams["what"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "what")
+	}
+
+	protoReq.What, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "what", err)
+	}
+
+	val, ok = pathParams["where"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "where")
+	}
+
+	protoReq.Where, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "where", err)
+	}
+
+	val, ok = pathParams["revision"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "revision")
+	}
+
+	protoReq.Revision, err = runtime.Int64(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "revision", err)
+	}
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_SnakeEnumService_SnakeEnum_1); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
 	msg, err := server.SnakeEnum(ctx, &protoReq)
 	return msg, metadata, err
 
@@ -206,6 +388,31 @@ func RegisterFriendHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 
 	})
 
+	mux.Handle("POST", pattern_Friend_Test_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/friend.Friend/Test", runtime.WithHTTPPathPattern("/friend.friend/Test"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_Friend_Test_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_Friend_Test_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
 	return nil
 }
 
@@ -237,6 +444,31 @@ func RegisterSnakeEnumServiceHandlerServer(ctx context.Context, mux *runtime.Ser
 		}
 
 		forward_SnakeEnumService_SnakeEnum_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("GET", pattern_SnakeEnumService_SnakeEnum_1, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/friend.SnakeEnumService/SnakeEnum", runtime.WithHTTPPathPattern("/v2/message/{who}/{what}/{where}/{revision}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_SnakeEnumService_SnakeEnum_1(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_SnakeEnumService_SnakeEnum_1(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -275,10 +507,10 @@ func RegisterFriendHandler(ctx context.Context, mux *runtime.ServeMux, conn *grp
 }
 
 // RegisterFriendHandlerClient registers the http handlers for service Friend
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "extFriend.FriendClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "extFriend.FriendClient"
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "FriendClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "FriendClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "extFriend.FriendClient" to call the correct interceptors.
+// "FriendClient" to call the correct interceptors.
 func RegisterFriendHandlerClient(ctx context.Context, mux *runtime.ServeMux, client FriendClient) error {
 
 	mux.Handle("POST", pattern_Friend_GetFriendInfo_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -303,15 +535,41 @@ func RegisterFriendHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 
 	})
 
+	mux.Handle("POST", pattern_Friend_Test_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/friend.Friend/Test", runtime.WithHTTPPathPattern("/friend.friend/Test"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_Friend_Test_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_Friend_Test_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
 	return nil
 }
 
 var (
 	pattern_Friend_GetFriendInfo_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "getFriendInfo"}, ""))
+
+	pattern_Friend_Test_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"friend.friend", "Test"}, ""))
 )
 
 var (
 	forward_Friend_GetFriendInfo_0 = runtime.ForwardResponseMessage
+
+	forward_Friend_Test_0 = runtime.ForwardResponseMessage
 )
 
 // RegisterSnakeEnumServiceHandlerFromEndpoint is same as RegisterSnakeEnumServiceHandler but
@@ -346,10 +604,10 @@ func RegisterSnakeEnumServiceHandler(ctx context.Context, mux *runtime.ServeMux,
 }
 
 // RegisterSnakeEnumServiceHandlerClient registers the http handlers for service SnakeEnumService
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "extFriend.SnakeEnumServiceClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "extFriend.SnakeEnumServiceClient"
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "SnakeEnumServiceClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "SnakeEnumServiceClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "extFriend.SnakeEnumServiceClient" to call the correct interceptors.
+// "SnakeEnumServiceClient" to call the correct interceptors.
 func RegisterSnakeEnumServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client SnakeEnumServiceClient) error {
 
 	mux.Handle("GET", pattern_SnakeEnumService_SnakeEnum_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -374,13 +632,39 @@ func RegisterSnakeEnumServiceHandlerClient(ctx context.Context, mux *runtime.Ser
 
 	})
 
+	mux.Handle("GET", pattern_SnakeEnumService_SnakeEnum_1, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/friend.SnakeEnumService/SnakeEnum", runtime.WithHTTPPathPattern("/v2/message/{who}/{what}/{where}/{revision}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_SnakeEnumService_SnakeEnum_1(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_SnakeEnumService_SnakeEnum_1(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
 	return nil
 }
 
 var (
 	pattern_SnakeEnumService_SnakeEnum_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 5}, []string{"v1", "example", "snake", "who", "what", "where"}, ""))
+
+	pattern_SnakeEnumService_SnakeEnum_1 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 1, 0, 4, 1, 5, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 5}, []string{"v2", "message", "who", "what", "where", "revision"}, ""))
 )
 
 var (
 	forward_SnakeEnumService_SnakeEnum_0 = runtime.ForwardResponseMessage
+
+	forward_SnakeEnumService_SnakeEnum_1 = runtime.ForwardResponseMessage
 )

@@ -58,6 +58,11 @@ message SnakeEnumRequest {
   string what = 1;
   string who = 2;
   string where = 3;
+  int64 revision = 4; // 不受模板约束的任何字段会自动成为http的查询参数  Mapped to URL query parameter `revision`.
+  message SubMessage {
+    string sub_field = 1;
+  }
+  SubMessage sub = 5; //  Mapped to URL query parameter `sub.sub_field`.
 }
 
 message Book {
@@ -86,6 +91,8 @@ service friend{
     };
   }
 
+  rpc Test(RadarSearchPlayerInfo) returns (RadarSearchPlayerInfo);
+
 }
 
 
@@ -94,6 +101,10 @@ service SnakeEnumService {
     option (google.api.http) = {
       // 将路径参数赋值给proto对象
       get: "/v1/example/snake/{who}/{what}/{where}"
+      // 1个rpc定义多个http方法
+      additional_bindings{
+        get: "/v2/message/{who}/{what}/{where}/{revision}"
+      }
     };
   }
 }

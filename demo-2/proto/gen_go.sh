@@ -18,8 +18,6 @@ for ((i = 0; i < ${#all_proto[*]}; i++)); do
           --grpc-gateway_out ./ \
           --grpc-gateway_opt paths=source_relative \
           --grpc-gateway_opt logtostderr=true \
-          --grpc-gateway_opt standalone=true \
-          --grpc-gateway_opt generate_unbound_methods=true \
           --go_out=plugins=grpc,module=grpc-demo/demo-2/proto:./   $protoPath
   echo "protoc --go_out=plugins=grpc:." $protoPath
 
