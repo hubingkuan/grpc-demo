@@ -85,9 +85,12 @@ func run() error {
 		return err
 	}
 	// 可以添加自定义路由处理器
-	mux.HandlePath("GET", "/v1/hello/{name}", func(w http.ResponseWriter, r *http.Request, pathParams map[string]string) {
+	err = mux.HandlePath("GET", "/v1/hello/{name}", func(w http.ResponseWriter, r *http.Request, pathParams map[string]string) {
 		w.Write([]byte("hello " + pathParams["name"]))
 	})
+	if err != nil {
+		panic(err)
+	}
 	glog.Info("Starting http server...")
 	return http.ListenAndServe(":8081", mux)
 }
