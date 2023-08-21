@@ -430,7 +430,7 @@ func RegisterSnakeEnumServiceHandlerServer(ctx context.Context, mux *runtime.Ser
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/friend.SnakeEnumService/SnakeEnum", runtime.WithHTTPPathPattern("/v1/example/snake/{who}/{what}/{where}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/friend.SnakeEnumService/SnakeEnum", runtime.WithHTTPPathPattern("/v1/httpserver/snake/{who}/{what}/{where}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -616,7 +616,7 @@ func RegisterSnakeEnumServiceHandlerClient(ctx context.Context, mux *runtime.Ser
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/friend.SnakeEnumService/SnakeEnum", runtime.WithHTTPPathPattern("/v1/example/snake/{who}/{what}/{where}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/friend.SnakeEnumService/SnakeEnum", runtime.WithHTTPPathPattern("/v1/httpserver/snake/{who}/{what}/{where}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -658,7 +658,7 @@ func RegisterSnakeEnumServiceHandlerClient(ctx context.Context, mux *runtime.Ser
 }
 
 var (
-	pattern_SnakeEnumService_SnakeEnum_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 5}, []string{"v1", "example", "snake", "who", "what", "where"}, ""))
+	pattern_SnakeEnumService_SnakeEnum_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 5}, []string{"v1", "httpserver", "snake", "who", "what", "where"}, ""))
 
 	pattern_SnakeEnumService_SnakeEnum_1 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 1, 0, 4, 1, 5, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 5}, []string{"v2", "message", "who", "what", "where", "revision"}, ""))
 )

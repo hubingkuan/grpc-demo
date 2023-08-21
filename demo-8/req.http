@@ -1,0 +1,22 @@
+###
+POST http://localhost:8081/v1/getFriendInfo
+Content-Type: application/json
+
+{
+  "name": "张三",
+  "id": "2"
+}
+
+###
+POST http://localhost:8081/friend.friend/Test
+Content-Type: application/json
+X-Request-Id: "123456"
+
+{
+  "head": 4
+}
+
+
+###
+GET http://localhost:8081/v1/hello/maguahu
+Content-Type: application/json

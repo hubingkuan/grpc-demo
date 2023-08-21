@@ -79,7 +79,7 @@ func RegisterFriendHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/friend.Friend/GetFriendInfo", runtime.WithHTTPPathPattern("/v1/example/oneofenum"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/friend.Friend/GetFriendInfo", runtime.WithHTTPPathPattern("/v1/httpserver/oneofenum"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -143,7 +143,7 @@ func RegisterFriendHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/friend.Friend/GetFriendInfo", runtime.WithHTTPPathPattern("/v1/example/oneofenum"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/friend.Friend/GetFriendInfo", runtime.WithHTTPPathPattern("/v1/httpserver/oneofenum"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -163,7 +163,7 @@ func RegisterFriendHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 }
 
 var (
-	pattern_Friend_GetFriendInfo_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "example", "oneofenum"}, ""))
+	pattern_Friend_GetFriendInfo_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "httpserver", "oneofenum"}, ""))
 )
 
 var (

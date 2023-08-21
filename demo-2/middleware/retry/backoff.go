@@ -15,7 +15,7 @@ func BackoffLinear(waitBetween time.Duration) BackoffFunc {
 
 // jitterUp adds random jitter to the duration.
 // This adds or subtracts time from the duration within a given jitter fraction.
-// For example for 10s and jitter 0.1, it will return a time within [9s, 11s])
+// For httpserver for 10s and jitter 0.1, it will return a time within [9s, 11s])
 func jitterUp(duration time.Duration, jitter float64) time.Duration {
 	multiplier := jitter * (rand.Float64()*2 - 1)
 	return time.Duration(float64(duration) * (1 + multiplier))
@@ -27,7 +27,7 @@ func exponentBase2(a uint) uint {
 }
 
 // BackoffLinearWithJitter waits a set period of time, allowing for jitter (fractional adjustment).
-// For example waitBetween=1s and jitter=0.10 can generate waits between 900ms and 1100ms.
+// For httpserver waitBetween=1s and jitter=0.10 can generate waits between 900ms and 1100ms.
 func BackoffLinearWithJitter(waitBetween time.Duration, jitterFraction float64) BackoffFunc {
 	return func(ctx context.Context, attempt uint) time.Duration {
 		return jitterUp(waitBetween, jitterFraction)

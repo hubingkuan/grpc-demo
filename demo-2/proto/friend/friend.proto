@@ -55,7 +55,7 @@ message RadarSearchPlayerInfo {
 service friend{
   rpc GetFriendInfo(FriendBaseInfo) returns (RadarSearchPlayerInfo) {
     option (google.api.http) = {
-      post: "/v1/example/oneofenum"
+      post: "/v1/httpserver/oneofenum"
       // body 必须是 FriendBaseInfo内的属性  一般来说都是 * 代表全部
       body: "*"
     };

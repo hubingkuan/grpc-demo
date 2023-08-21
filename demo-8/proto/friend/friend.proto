@@ -100,7 +100,7 @@ service SnakeEnumService {
   rpc SnakeEnum(SnakeEnumRequest) returns (SnakeEnumResponse) {
     option (google.api.http) = {
       // 将路径参数赋值给proto对象
-      get: "/v1/example/snake/{who}/{what}/{where}"
+      get: "/v1/httpserver/snake/{who}/{what}/{where}"
       // 1个rpc定义多个http方法
       additional_bindings{
         get: "/v2/message/{who}/{what}/{where}/{revision}"
