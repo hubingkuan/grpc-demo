@@ -8,7 +8,8 @@
 4. demo-4: 服务注册与服务发现  (etcd官方包实现resolver)
 5. demo-5: 服务注册与服务发现  (etcd、zk、nacos 实现自定义resolver 服务注册+服务发现+服务配置)
 6. demo-6: 简单的thrift服务
-7. demo-7: opentracing(确认性能瓶颈、收集程序指标、了解程序行为)+链路追踪
+7. demo-7: opentelemetry+jaeger简单实现(日志:应用程序内打的日志+指标:提供系统运行状况视图,是否在期望的边界内运行+跟踪:
+   可视化请求在整个系统中移动时的进度)
 8. demo-8: grpc-gateway(将grpc服务转换成http服务)
 
 metadata参考:[metadata](https://github.com/grpc/grpc-go/blob/master/Documentation/grpc-metadata.md#unary-call)
@@ -65,23 +66,27 @@ SECOND_VALUE = 2;
 4、protobuf的数据类型
 
 ```go
-double
-float
-int32
-uint32
-uint64
-sint32
-sint64
-fixed32
-fixed64
-bool
-string
-bytes
+protoType       GoType
+double          float64
+float           float32
+int32           int32
+int64           int64
+uint32          uint32
+uint64          uint64
+sint32          int32
+sint64          int64
+fixed32         uint32
+fixed64         uint64
+sfixed32        int32
+sfixed64        int64
+bool            bool
+string          string
+bytes           []byte
 enum
 message
 map<T, K>
 repeated T
-oneof :  如果消息中有很多可选字段 并且同时最多只能有一个字段被设置为非默认值 那么可以使用oneof (多选一 oneof内的字段不能用Repeated修饰)
+oneof:  如果消息中有很多可选字段 并且同时最多只能有一个字段被设置为非默认值 那么可以使用oneof (多选一 oneof内的字段不能用Repeated修饰)
 ```
 
 5、生成go文件命令:
