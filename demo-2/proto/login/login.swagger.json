@@ -1,0 +1,123 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "login/login.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "login"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {},
+  "definitions": {
+    "loginErrCode": {
+      "type": "string",
+      "enum": [
+        "NONE",
+        "SUCCESS",
+        "UNKNOWN",
+        "SESSION_KEY",
+        "IMAGE_SIZE",
+        "FILE_TYPE",
+        "OPEN_FILE",
+        "READ_FILE",
+        "TIMEOUT"
+      ],
+      "default": "NONE"
+    },
+    "loginWorldEndPointInfo": {
+      "type": "object",
+      "properties": {
+        "ZoneId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "SId": {
+          "type": "string"
+        },
+        "Addr": {
+          "type": "string"
+        },
+        "Name": {
+          "type": "string"
+        },
+        "Players": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "PIdx": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "Max": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "Stat": {
+          "type": "integer",
+          "format": "int32",
+          "title": "0 - 未开服， 1：空闲，2：火热：3：爆满，4：维护中"
+        }
+      }
+    },
+    "loginWorldEndPointInfoRsp": {
+      "type": "object",
+      "properties": {
+        "ErrCode": {
+          "$ref": "#/definitions/loginErrCode"
+        },
+        "info": {
+          "$ref": "#/definitions/loginWorldEndPointInfo"
+        }
+      }
+    },
+    "loginZoneInfo": {
+      "type": "object",
+      "properties": {
+        "Id": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "Status": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

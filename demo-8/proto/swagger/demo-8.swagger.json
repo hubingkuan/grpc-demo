@@ -1,0 +1,481 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "friend/friend.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "friend"
+    },
+    {
+      "name": "SnakeEnumService"
+    },
+    {
+      "name": "Greeter"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/friend.friend/Test": {
+      "post": {
+        "operationId": "friend_Test",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/friendRadarSearchPlayerInfo"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/friendRadarSearchPlayerInfo"
+            }
+          }
+        ],
+        "tags": [
+          "friend"
+        ]
+      }
+    },
+    "/hello.Greeter/SayHello": {
+      "post": {
+        "operationId": "Greeter_SayHello",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/helloPerson"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/helloPerson"
+            }
+          }
+        ],
+        "tags": [
+          "Greeter"
+        ]
+      }
+    },
+    "/v1/getFriendInfo": {
+      "post": {
+        "operationId": "friend_GetFriendInfo",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/friendRadarSearchPlayerInfo"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "book",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/friendBook"
+            }
+          },
+          {
+            "name": "playerId",
+            "description": "@inject_tag: gorm:\"primary_key;column:player_id;type:bigint(20) unsigned;not null;comment:'玩家ID'\" json:\"playerID\"\n\n玩家ID",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "name",
+            "description": "昵称",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "isOnline",
+            "description": "是否在线",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "frame",
+            "description": "相框 前缀必须是foo",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "head",
+            "description": "头像 必须在指定值1,2,3,4,5内",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "model",
+            "description": "模型",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "tag",
+            "description": "备注 最大长度1 最小长度10",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "offline",
+            "description": "离线时间",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "friendDegree",
+            "description": "好友度",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "addType",
+            "description": "加好友的途径 字段必须是指定的枚举值\n\n - NormalAdd: 普通加好友\n - LetterAdd: 留言板加好友",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "NormalAdd",
+              "LetterAdd"
+            ],
+            "default": "NormalAdd"
+          },
+          {
+            "name": "baseLevel",
+            "description": "角色等级",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "x",
+            "description": "必须是指定的值 true",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "xx",
+            "description": "重复的值必须是唯一的",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "float"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "tags": [
+          "friend"
+        ]
+      }
+    },
+    "/v1/httpserver/snake/{who}/{what}/{where}": {
+      "get": {
+        "operationId": "SnakeEnumService_SnakeEnum",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/friendSnakeEnumResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "who",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "what",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "where",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "revision",
+            "description": "不受模板约束的任何字段会自动成为http的查询参数  Mapped to URL query parameter `revision`.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "sub.subField",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "SnakeEnumService"
+        ]
+      }
+    },
+    "/v2/message/{who}/{what}/{where}/{revision}": {
+      "get": {
+        "operationId": "SnakeEnumService_SnakeEnum2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/friendSnakeEnumResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "who",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "what",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "where",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "revision",
+            "description": "不受模板约束的任何字段会自动成为http的查询参数  Mapped to URL query parameter `revision`.",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "sub.subField",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "SnakeEnumService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "SnakeEnumRequestSubMessage": {
+      "type": "object",
+      "properties": {
+        "subField": {
+          "type": "string"
+        }
+      }
+    },
+    "friendAddFriendType": {
+      "type": "string",
+      "enum": [
+        "NormalAdd",
+        "LetterAdd"
+      ],
+      "default": "NormalAdd",
+      "description": "- NormalAdd: 普通加好友\n - LetterAdd: 留言板加好友",
+      "title": "加好友的途径"
+    },
+    "friendBook": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The resource name of the book.\n\nFormat: `publishers/{publisher}/books/{book}`\n\nExample: `publishers/1257894000000000000/books/my-book`"
+        },
+        "id": {
+          "type": "string",
+          "description": "Output only. The book's ID.",
+          "readOnly": true
+        },
+        "createTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Output only. Creation time of the book.",
+          "readOnly": true
+        }
+      }
+    },
+    "friendRadarSearchPlayerInfo": {
+      "type": "object",
+      "properties": {
+        "distance": {
+          "type": "number",
+          "format": "float"
+        },
+        "playerId": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "bubbleFrame": {
+          "type": "integer",
+          "format": "int64",
+          "title": "气泡框"
+        },
+        "head": {
+          "type": "integer",
+          "format": "int64",
+          "title": "头像"
+        },
+        "headFrame": {
+          "type": "integer",
+          "format": "int64",
+          "title": "头像框"
+        },
+        "nickName": {
+          "type": "string",
+          "title": "昵称"
+        }
+      }
+    },
+    "friendSnakeEnumResponse": {
+      "type": "object"
+    },
+    "helloPerson": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "email": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "home": {
+          "$ref": "#/definitions/helloPersonLocation"
+        }
+      }
+    },
+    "helloPersonLocation": {
+      "type": "object",
+      "properties": {
+        "lat": {
+          "type": "number",
+          "format": "double"
+        },
+        "lng": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

@@ -9,7 +9,6 @@ if [ ! -d "$doc_dir" ]; then
   echo "mkdir $doc_dir"
 fi
 
-# 生成待校验的proto文件以及html接口文档
 for ((i = 0; i < ${#all_proto[*]}; i++)); do
   protoPath=${all_proto[$i]}
   protoName=$(basename "$protoPath" .proto)
@@ -18,11 +17,11 @@ for ((i = 0; i < ${#all_proto[*]}; i++)); do
           --grpc-gateway_out ./ \
           --grpc-gateway_opt paths=source_relative \
           --grpc-gateway_opt logtostderr=true \
-          --go_out=plugins=grpc,module=grpc-demo/demo-2/proto:./   $protoPath
-  echo "protoc --go_out=plugins=grpc:." $protoPath
+          --openapiv2_out=./ --openapiv2_opt logtostderr=true \
+          --go_out=plugins=grpc:./ --go_opt=paths=source_relative   $protoPath
+  echo "protoc generate" $protoPath
 
   v=$protoName/$protoName$suffix
-  echo "v:" $v
   protoc-go-inject-tag -input=$v
 done
 echo "proto file generate success"

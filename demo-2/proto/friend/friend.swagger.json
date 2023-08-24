@@ -1,0 +1,195 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "friend/friend.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "friend"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/httpserver/oneofenum": {
+      "post": {
+        "operationId": "friend_GetFriendInfo",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/friendRadarSearchPlayerInfo"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/friendFriendBaseInfo"
+            }
+          }
+        ],
+        "tags": [
+          "friend"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "friendAddFriendType": {
+      "type": "string",
+      "enum": [
+        "NormalAdd",
+        "LetterAdd"
+      ],
+      "default": "NormalAdd",
+      "description": "- NormalAdd: 普通加好友\n - LetterAdd: 留言板加好友",
+      "title": "加好友的途径"
+    },
+    "friendFriendBaseInfo": {
+      "type": "object",
+      "properties": {
+        "playerId": {
+          "type": "string",
+          "format": "uint64",
+          "title": "玩家ID"
+        },
+        "name": {
+          "type": "string",
+          "title": "昵称"
+        },
+        "isOnline": {
+          "type": "boolean",
+          "title": "是否在线"
+        },
+        "frame": {
+          "type": "string",
+          "title": "相框 前缀必须是foo"
+        },
+        "head": {
+          "type": "integer",
+          "format": "int64",
+          "title": "头像 必须在指定值1,2,3,4,5内"
+        },
+        "model": {
+          "type": "integer",
+          "format": "int64",
+          "title": "模型"
+        },
+        "tag": {
+          "type": "string",
+          "title": "备注 最大长度1 最小长度10"
+        },
+        "offline": {
+          "type": "string",
+          "format": "int64",
+          "title": "离线时间"
+        },
+        "friendDegree": {
+          "type": "integer",
+          "format": "int32",
+          "title": "好友度"
+        },
+        "addType": {
+          "$ref": "#/definitions/friendAddFriendType",
+          "title": "加好友的途径 字段必须是指定的枚举值"
+        },
+        "baseLevel": {
+          "type": "integer",
+          "format": "int32",
+          "title": "角色等级"
+        },
+        "email": {
+          "type": "string"
+        },
+        "x": {
+          "type": "boolean",
+          "title": "必须是指定的值 true"
+        },
+        "xx": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "format": "float"
+          },
+          "title": "重复的值必须是唯一的"
+        }
+      },
+      "title": "好友基本信息"
+    },
+    "friendRadarSearchPlayerInfo": {
+      "type": "object",
+      "properties": {
+        "distance": {
+          "type": "number",
+          "format": "float"
+        },
+        "playerId": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "bubbleFrame": {
+          "type": "integer",
+          "format": "int64",
+          "title": "气泡框"
+        },
+        "head": {
+          "type": "integer",
+          "format": "int64",
+          "title": "头像"
+        },
+        "headFrame": {
+          "type": "integer",
+          "format": "int64",
+          "title": "头像框"
+        },
+        "nickName": {
+          "type": "string",
+          "title": "昵称"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

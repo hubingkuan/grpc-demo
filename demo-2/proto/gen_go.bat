@@ -25,8 +25,9 @@ for %%i in (%all_proto%) do (
            --grpc-gateway_out ./ ^
            --grpc-gateway_opt paths=source_relative ^
            --grpc-gateway_opt logtostderr=true ^
-           --go_out=plugins=grpc,module=grpc-demo/demo-2/proto:./ !protoPath!
-    @echo protoc --go_out=plugins=grpc:. "%%i"
+           --openapiv2_out=./ --openapiv2_opt logtostderr=true ^
+           --go_out=plugins=grpc:./ --go_opt=paths=source_relative !protoPath!
+    @echo protoc generate "%%i"
 
     set v=!protoName!/!protoName!%suffix%
     protoc-go-inject-tag -input=!v!

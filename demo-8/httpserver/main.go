@@ -3,19 +3,24 @@ package main
 import (
 	"context"
 	"flag"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strconv"
+
+	"grpc-demo/demo-8/proto/friend"
+	"grpc-demo/demo-8/proto/hello"
+
 	"github.com/golang/glog"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/proto"
-	"grpc-demo/demo-8/proto/friend"
-	"net/http"
-	"strconv"
 )
 
 var (
-	grpcServerEndpoint = flag.String("endpoint", "localhost:8082", "grpc server endpoint")
+	grpcServerEndpoint = flag.String("endpoint", "localhost:8083", "grpc server endpoint")
 )
 
 func run() error {
@@ -25,45 +30,51 @@ func run() error {
 
 	mux := runtime.NewServeMux(
 		// 将请求方法和路径添加到grpc元数据中
-		runtime.WithMetadata(func(ctx context.Context, r *http.Request) metadata.MD {
-			md := make(map[string]string)
-			if method, ok := runtime.RPCMethod(ctx); ok {
-				md["method"] = method
-			}
-			if pattern, ok := runtime.HTTPPathPattern(ctx); ok {
-				md["pattern"] = pattern
-			}
-			return metadata.New(md)
-		}),
-		// 将特殊的http的请求头 并保留默认的映射规则 加入到grpc的metadata中
-		runtime.WithIncomingHeaderMatcher(func(key string) (string, bool) {
-			switch key {
-			case "X-Request-Id":
-				return key, true
-			default:
-				return runtime.DefaultHeaderMatcher(key)
-			}
-		}),
-		// 改变响应消息 或设置响应头  相当于后置响应处理器
-		runtime.WithForwardResponseOption(func(ctx context.Context, w http.ResponseWriter, responseMessage proto.Message) error {
-			// 可以从响应中拿到player_id 放到响应头中
-			t, ok := responseMessage.(*friend.RadarSearchPlayerInfo)
-			if ok {
-				w.Header().Set("player_id", strconv.Itoa(int(t.GetPlayerId())))
-			}
-			// 也可以从服务端设置的元数据中拿到metadata 数据
-			md, ok := runtime.ServerMetadataFromContext(ctx)
-			if !ok {
-				return nil
-			} else {
-				if code := md.HeaderMD.Get("code"); len(code) > 0 {
-					code, _ := strconv.Atoi(code[0])
-					// 修改http状态码
-					w.WriteHeader(code)
+		runtime.WithMetadata(
+			func(ctx context.Context, r *http.Request) metadata.MD {
+				md := make(map[string]string)
+				if method, ok := runtime.RPCMethod(ctx); ok {
+					md["method"] = method
 				}
-			}
-			return nil
-		}),
+				if pattern, ok := runtime.HTTPPathPattern(ctx); ok {
+					md["pattern"] = pattern
+				}
+				return metadata.New(md)
+			},
+		),
+		// 将特殊的http的请求头 并保留默认的映射规则 加入到grpc的metadata中
+		runtime.WithIncomingHeaderMatcher(
+			func(key string) (string, bool) {
+				switch key {
+				case "X-Request-Id":
+					return key, true
+				default:
+					return runtime.DefaultHeaderMatcher(key)
+				}
+			},
+		),
+		// 改变响应消息 或设置响应头  相当于后置响应处理器
+		runtime.WithForwardResponseOption(
+			func(ctx context.Context, w http.ResponseWriter, responseMessage proto.Message) error {
+				// 可以从响应中拿到player_id 放到响应头中
+				t, ok := responseMessage.(*friend.RadarSearchPlayerInfo)
+				if ok {
+					w.Header().Set("player_id", strconv.Itoa(int(t.GetPlayerId())))
+				}
+				// 也可以从服务端设置的元数据中拿到metadata 数据
+				md, ok := runtime.ServerMetadataFromContext(ctx)
+				if !ok {
+					return nil
+				} else {
+					if code := md.HeaderMD.Get("code"); len(code) > 0 {
+						code, _ := strconv.Atoi(code[0])
+						// 修改http状态码
+						w.WriteHeader(code)
+					}
+				}
+				return nil
+			},
+		),
 		//  自定义路由错误
 		// runtime.WithErrorHandler(func(ctx context.Context, mux *runtime.ServeMux, marshaler runtime.Marshaler, w http.ResponseWriter, r *http.Request, err error) {
 		//
@@ -80,16 +91,45 @@ func run() error {
 		// }),
 	)
 	options := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
-	err := friend.RegisterFriendHandlerFromEndpoint(ctx, mux, *grpcServerEndpoint, options)
+	// 这里option需要和grpcServer保持一致  要么全部都是tls 要么全部都是insecure
+	err := hello.RegisterGreeterHandlerFromEndpoint(ctx, mux, *grpcServerEndpoint, options)
 	if err != nil {
 		return err
 	}
-	// 可以添加自定义路由处理器
-	err = mux.HandlePath("GET", "/v1/hello/{name}", func(w http.ResponseWriter, r *http.Request, pathParams map[string]string) {
-		w.Write([]byte("hello " + pathParams["name"]))
-	})
+	err = friend.RegisterFriendHandlerFromEndpoint(ctx, mux, *grpcServerEndpoint, options)
 	if err != nil {
-		panic(err)
+		return err
+	}
+
+	// 可以添加自定义路由处理器
+	err = mux.HandlePath(
+		"GET", "/v1/hello/{name}", func(w http.ResponseWriter, r *http.Request, pathParams map[string]string) {
+			w.Write([]byte("hello " + pathParams["name"]))
+		},
+	)
+	if err != nil {
+		return err
+	}
+	err = mux.HandlePath(
+		"GET", "/swagger", func(w http.ResponseWriter, r *http.Request, pathParams map[string]string) {
+			currentPath, _ := os.Getwd()
+			swaggerFilePath := filepath.Join(currentPath, "demo-8/proto/swagger/demo-8.swagger.json")
+			http.ServeFile(w, r, swaggerFilePath)
+		},
+	)
+	if err != nil {
+		return err
+	}
+	err = mux.HandlePath(
+		"GET", "/doc", func(w http.ResponseWriter, r *http.Request, pathParams map[string]string) {
+			currentPath, _ := os.Getwd()
+			docFilePath := filepath.Join(currentPath, "demo-8/proto/docs/proto_doc.html")
+			http.ServeFile(w, r, docFilePath)
+			return
+		},
+	)
+	if err != nil {
+		return err
 	}
 	glog.Info("Starting http server...")
 	return http.ListenAndServe(":8081", mux)

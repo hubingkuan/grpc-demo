@@ -3,18 +3,33 @@ package main
 import (
 	"context"
 	"fmt"
+	"net"
+
+	"grpc-demo/demo-8/proto/friend"
+	"grpc-demo/demo-8/proto/hello"
+
+	"github.com/golang/glog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
-	"grpc-demo/demo-8/proto/friend"
-	"net"
 )
 
 type Server struct {
 }
 
-func (s *Server) GetFriendInfo(ctx context.Context, info *friend.FriendBaseInfo) (*friend.RadarSearchPlayerInfo, error) {
+func (s *Server) SayHello(ctx context.Context, person *hello.Person) (*hello.Person, error) {
+	return &hello.Person{
+		Id:    1,
+		Email: "maguahu@qq.com",
+		Name:  "maguahu",
+		Home:  nil,
+	}, nil
+}
+
+func (s *Server) GetFriendInfo(
+	ctx context.Context, info *friend.FriendBaseInfo,
+) (*friend.RadarSearchPlayerInfo, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {
 		requestID := md.Get("X-Request-Id")
@@ -59,9 +74,18 @@ func (s *Server) Test(ctx context.Context, info *friend.RadarSearchPlayerInfo) (
 }
 
 func main() {
+	listen, err := net.Listen("tcp", ":8083")
+	if err != nil {
+		panic(err)
+	}
+	defer func() {
+		if err := listen.Close(); err != nil {
+			glog.Errorf("Failed to close %s %s: %v", "tcp", ":8083", err)
+		}
+	}()
 	var opts []grpc.ServerOption
 	server := grpc.NewServer(opts...)
 	friend.RegisterFriendServer(server, &Server{})
-	listen, _ := net.Listen("tcp", ":8082")
+	hello.RegisterGreeterServer(server, &Server{})
 	_ = server.Serve(listen)
 }
