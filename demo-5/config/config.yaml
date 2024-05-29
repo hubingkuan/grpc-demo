@@ -6,8 +6,8 @@ etcd:
 
 
 zookeeper:
-  schema: openIM
-  address: [ 127.0.0.1:2181 ]
+  schema: openim
+  address: [ 10.0.1.20:30001 ]
   username:
   password:
 

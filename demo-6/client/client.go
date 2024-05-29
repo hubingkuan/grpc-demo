@@ -3,18 +3,19 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/apache/thrift/lib/go/thrift"
+
 	"grpc-demo/demo-6/example"
+
+	"github.com/apache/thrift/lib/go/thrift"
 )
 
 func main() {
 
 	conf := &thrift.TConfiguration{}
 	transport := thrift.NewTSocketConf("localhost:8080", conf)
-
+	defer transport.Close()
 	// 创建客户端协议
-	confN := &thrift.TConfiguration{}
-	protocolFactory := thrift.NewTBinaryProtocolFactoryConf(confN)
+	protocolFactory := thrift.NewTBinaryProtocolFactoryConf(conf)
 	client := example.NewFormatDataClientFactory(transport, protocolFactory)
 
 	// 打开连接

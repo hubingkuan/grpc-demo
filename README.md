@@ -8,8 +8,8 @@
 4. demo-4: 服务注册与服务发现  (etcd官方包实现resolver)
 5. demo-5: 服务注册与服务发现  (etcd、zk、nacos 实现自定义resolver 服务注册+服务发现+服务配置)
 6. demo-6: 简单的thrift服务
-7. demo-7: opentelemetry+jaeger简单实现(日志:应用程序内打的日志+指标:提供系统运行状况视图,是否在期望的边界内运行+跟踪:
-   可视化请求在整个系统中移动时的进度)
+7. demo-7: opentelemetry+jaeger简单实现(日志(ELK):应用程序内打的日志+指标(prometheus):
+   提供系统运行状况视图,是否在期望的边界内运行+跟踪(jaeger):可视化请求在整个系统中移动时的进度)
 8. demo-8: grpc-gateway+openapiv2(将grpc服务转换成http服务)
 
 metadata参考:[metadata](https://github.com/grpc/grpc-go/blob/master/Documentation/grpc-metadata.md#unary-call)
