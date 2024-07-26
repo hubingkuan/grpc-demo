@@ -23,7 +23,7 @@ thrift参考: [thrift](https://thrift.apache.org/)
 ## Grpc基础
 
 1、下载protobuf:https://github.com/protocolbuffers/protobuf/releases/tag/v23.1 (注意版本和公司保持一致 低版本大概是3.17.3
-高版本与低版本生成代码的命令不一致)
+高版本与低版本生成代码的命令不一致 protoc-gen-go的版本也需要变化 go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.26  go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.1)
 
 * 设置系统环境变量: D:\protobuf\bin
 * 查看proto版本: protoc--version
@@ -33,8 +33,7 @@ thrift参考: [thrift](https://thrift.apache.org/)
 * go get google.golang.org/grpc
 * go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 * go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-* go install
-  github.com/bufbuild/protoc-gen-validate@latest ([pb验证参数](https://github.com/bufbuild/protoc-gen-validate/blob/main/docs.md))
+* go install github.com/bufbuild/protoc-gen-validate@latest ([pb验证参数](https://github.com/bufbuild/protoc-gen-validate/blob/main/docs.md))
 * go install github.com/favadi/protoc-go-inject-tag@latest (pb生成struct tag 参考login.proto)
 * go install github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc@latest (pb生成接口文档)
 * go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway (grpc反向代理生成http服务)
